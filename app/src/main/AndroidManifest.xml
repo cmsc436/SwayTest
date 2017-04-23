@@ -19,7 +19,9 @@
         <service
             android:name=".MeasurementService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".InstructionActivity"></activity>
     </application>
 
 </manifest>
