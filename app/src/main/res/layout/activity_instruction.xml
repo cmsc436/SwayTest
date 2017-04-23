@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cmsc436.umd.edu.sway.InstructionActivity">
+
+    <TextView
+        android:id="@+id/instructionsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Instructions"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+         />
+    <TextView
+        android:id="@+id/instructionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView"
+        android:layout_marginTop="60dp"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nec placerat libero. Aenean eu odio sed velit consectetur scelerisque a rhoncus mauris. Aenean et congue urna. Mauris metus nulla, rutrum et magna sit amet, venenatis ullamcorper turpis" />
+
+    <Button
+        android:id="@+id/skip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="42dp"
+        android:layout_marginEnd="48dp"
+        android:text="Skip" />
+
+</RelativeLayout>
