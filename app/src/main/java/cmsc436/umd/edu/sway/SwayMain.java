@@ -43,9 +43,10 @@ public class SwayMain extends AppCompatActivity {
      *                    **SENSOR DATA REPRESENTATION: DataPoint**
      *
      *  The Sensor Data is represented as a DataPoint object, this is a simple object
-     *  that contains gravity in x and y(phone's z) and time. This is just to make the
-     *  the code a bit simplified, since sensor readings are represented as floats and time
-     *  as, having one object to work with may make things easier
+     *  that contains gravity in x and y(phone's z) and time adjusted by
+     *  the initial resting position. This is just to make the the code a bit simplified,
+     *  since sensor readings are represented as floats and time as,
+     *  having one object to work with may make things easier
      *
      *
      *
@@ -98,7 +99,6 @@ public class SwayMain extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
-
 
     }
 
