@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sway</string>
+    <string name="measurement_service_handler_name">cmsc436.umd.edu.measurement_service_handler</string>
+
 </resources>
