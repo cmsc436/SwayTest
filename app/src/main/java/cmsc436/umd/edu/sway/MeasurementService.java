@@ -18,6 +18,11 @@ import java.util.List;
 
 
 public class MeasurementService extends Service {
+    /*
+        If anyone is reading, IDK if we should also use magnetic fields for anything (one group used it)
+        also Gravimeter vs Accelerometer what is the best?
+     */
+
     // handler thread name used for initializing the Handler Thread
     private final String HANDLER_THREAD_NAME = getString(R.string.measurement_service_handler_name);
 
@@ -90,8 +95,8 @@ public class MeasurementService extends Service {
                 if(startReading) {
                     //updating the acceleration reading
                     if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-                        currentReading.setX(event.values[0]); // phone's x
-                        currentReading.setY(event.values[2]); // phone's z
+                        currentReading.setX(initialReading.getX() - event.values[0]); // phone's x
+                        currentReading.setY(initialReading.getY() - event.values[2]); // phone's z
                         currentReading.setTime(initialReading.getTime() - System.currentTimeMillis());
 
                         concurrentDataList.add(currentReading.getDeepCopy());
