@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">Sway</string>
     <string name="measurement_service_handler_name">cmsc436.umd.edu.measurement_service_handler</string>
+    <string name="test_instr">Hello, and again, welcome to the Aperture Science Enrichment Center.
+        We are currently experiencing technical difficulties due to circumstances of potentially
+        apocalyptic significance beyond our control. However, thanks to Emergency Testing Protocols,
+        testing can continue. These pre-recorded messages will provide instructional and
+        motivational support, so that science can still be done, even in the event of environmental,
+        social, economic, or structural collapse. . . For the first exam please stand with your legs spread.
+        . . . stand still. . . The portal will open and emergency testing will begin in three. Two. One.
+    </string>
 
+    <string name="test_instr_debug">
+        Hello, and again, welcome to the Aperture Science Enrichment Center. For the first exam please stand with your legs spread.
+        . . . stand still. . . The portal will open and emergency testing will begin in three. Two. One.
+    </string>
 </resources>

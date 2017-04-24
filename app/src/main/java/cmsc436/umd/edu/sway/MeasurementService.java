@@ -24,7 +24,7 @@ public class MeasurementService extends Service {
      */
 
     // handler thread name used for initializing the Handler Thread
-    private final String HANDLER_THREAD_NAME = getString(R.string.measurement_service_handler_name);
+    private final String HANDLER_THREAD_NAME = "HANDLER";//getString(R.string.measurement_service_handler_name);
 
     //Reading Delay in MICRO-seconds
     private int SENSOR_READING_DELAY = 5000; // take a data every 5 milliseconds
@@ -95,22 +95,26 @@ public class MeasurementService extends Service {
                 if(startReading) {
                     //updating the acceleration reading
                     if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-                        currentReading.setX(initialReading.getX() - event.values[0]); // phone's x
-                        currentReading.setY(initialReading.getY() - event.values[2]); // phone's z
-                        currentReading.setTime(initialReading.getTime() - System.currentTimeMillis());
+                        synchronized (concurrentDataList) {
+                            synchronized (currentReading) {
+                                currentReading.setX(initialReading.getX() - event.values[0]); // phone's x
+                                currentReading.setY(initialReading.getY() - event.values[2]); // phone's z
+                                currentReading.setTime(System.currentTimeMillis()-initialReading.getTime());
 
-                        concurrentDataList.add(currentReading.getDeepCopy());
+                                concurrentDataList.add(currentReading.getDeepCopy());
+                            }
+                        }
 
 //                        concurrentAccelerationData.add(0, event.values[0]);
 //                    concurrentAccelerationData.add(1,event.values[1]);
 //                        concurrentAccelerationData.add(2, event.values[2]);
                     }
                     //updating magnetic sensor reading
-                    else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                        concurrentMagneticData.add(0, event.values[0]);
-//                    concurrentMagneticData.add(1,event.values[1]);
-                        concurrentMagneticData.add(2, event.values[2]);
-                    }
+//                    else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+//                        concurrentMagneticData.add(0, event.values[0]);
+////                    concurrentMagneticData.add(1,event.values[1]);
+//                        concurrentMagneticData.add(2, event.values[2]);
+//                    }
                 }else if(initialReading == null && event.sensor.getType() == Sensor.TYPE_GRAVITY){
                     initialReading = new DataPoint(
                             event.values[0],
@@ -248,6 +252,15 @@ public class MeasurementService extends Service {
 
         public DataPoint getDeepCopy(){
             return new DataPoint(x,y,time);
+        }
+
+        @Override
+        public String toString() {
+            return "DataPoint{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", time=" + time +
+                    '}';
         }
     }
 }

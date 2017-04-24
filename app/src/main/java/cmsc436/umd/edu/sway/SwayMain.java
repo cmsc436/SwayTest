@@ -1,13 +1,34 @@
 package cmsc436.umd.edu.sway;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.provider.MediaStore;
+import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 public class SwayMain extends AppCompatActivity {
 
@@ -94,11 +115,23 @@ public class SwayMain extends AppCompatActivity {
     MeasurementService measurementService;
     boolean isServiceBound = false;
 
+    // Object responsible for sending info to the sheets
+    SheetManager sheetManager;
 
+    //Text to Speech
+    TextToSpeech tts;
+
+    TextView textView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
+
+        sheetManager = new SheetManager(this);
+        tts = new TextToSpeech(this,onInitListener);
+
+        textView = (TextView) findViewById(R.id.sway_text);
+        getPermission();
 
     }
 
@@ -120,6 +153,21 @@ public class SwayMain extends AppCompatActivity {
         if(isServiceBound) unbindService(serviceConnection);
     }
 
+    public void clickMe(View v){
+        speakText();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        preTest.start();
+    }
+    private void speakText(){
+        tts.speak(getString(R.string.test_instr_debug),TextToSpeech.QUEUE_FLUSH,null,null);
+
+    }
+
     // Responsible for connecting to the Measurement Service
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -136,13 +184,30 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
+    private TextToSpeech.OnInitListener onInitListener = new TextToSpeech.OnInitListener() {
+        @Override
+        public void onInit(int status) {
+            if( status == TextToSpeech.SUCCESS){
+                int result = tts.setLanguage(Locale.US);
+                if(result==TextToSpeech.LANG_MISSING_DATA ||
+                        result==TextToSpeech.LANG_NOT_SUPPORTED){
+                    Log.e("error", "This Language is not supported");
+                }
+//                else{
+//                    speakText();
+//                }
+            }
+
+        }
+    };
+
 
 
     // TODO DEFINE WHAT HAPPENS IN PRETEST
     private CountDownTimer preTest = new CountDownTimer(PRETEST_DURATION,PRETEST_INTERVAL) {
         @Override
         public void onTick(long millisUntilFinished) {
-
+            textView.setText("TESTING --- PRETEST WAIT: "+millisUntilFinished/1000);
         }
 
         @Override
@@ -160,17 +225,99 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onTick(long millisUntilFinished) {
-
+            textView.setText("TESTING --- TESTING: "+millisUntilFinished/1000);
         }
 
         @Override
         public void onFinish() {
+            textView.setText("TEST DONE");
             // stops recording the data
             measurementService.stopReading();
             // now you can call measurementService.getDataList()
             // which will return the recorded data
+            List<MeasurementService.DataPoint> l = measurementService.getDataList();
+
+            Bitmap bitmap = getDrawing(l);
+            String title = (new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
+            Log.d("PICNAME",title);
+            MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, title , "");
         }
     };
 
+    private Bitmap getDrawing(List<MeasurementService.DataPoint> l){
+        final int BITMAP_SIZE = 900;
+        final float ACCELERATION_LIMIT = 4.5f;
+        final float CONSTANT = (BITMAP_SIZE/2) / ACCELERATION_LIMIT;
 
+        Path path = new Path();
+        Paint paint = new Paint();
+
+        paint.setColor(Color.RED);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(5);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+
+        Bitmap bitmap = Bitmap.createBitmap(
+                BITMAP_SIZE,
+                BITMAP_SIZE,
+                Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+
+        path.moveTo(BITMAP_SIZE/2,BITMAP_SIZE/2);
+
+        for(MeasurementService.DataPoint p: l){
+
+            path.lineTo((p.getX() * CONSTANT)+ BITMAP_SIZE/2,(p.getY() * CONSTANT)+ BITMAP_SIZE/2);
+        }
+
+        canvas.drawPath(path,paint);
+
+
+        return bitmap;
+    }
+
+    private void getPermission(){
+        if (ContextCompat.checkSelfPermission(SwayMain.this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(SwayMain.this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(SwayMain.this,
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
+        }
+    }
+
+
+    // part of the Sheet API, it piggybacks on the
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        sheetManager.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        sheetManager.onActivityResult(requestCode,resultCode,data);
+    }
 }
