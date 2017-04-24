@@ -11,7 +11,16 @@
     </string>
 
     <string name="test_instr_debug">
-        Hello, and again, welcome to the Aperture Science Enrichment Center. For the first exam please stand with your legs spread.
-        . . . stand still. . . The portal will open and emergency testing will begin in three. Two. One.
+       Hello, This is the First Test of the Sway Tests. In this test I will need you to spread you legs the shoulder width,
+        and straped to your waist. . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one
     </string>
+
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="instruction_overview">
+        The Sway Test will consist of three different tests. Swipe left to view the instructions for each test, or if you already know how these tests work, press "Skip" to skip the instructions.
+    </string>
+    <string name="instruction_title">Instructions</string>
 </resources>
