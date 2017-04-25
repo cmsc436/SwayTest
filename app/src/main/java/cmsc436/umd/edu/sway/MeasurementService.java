@@ -44,6 +44,8 @@ public class MeasurementService extends Service {
     // while this is false, data cannot be retrieved
     private boolean readingStopped = false;
 
+    private boolean calabrationDone = false;
+
     // these will be thread safe used to store the reading data
     List<Float> concurrentAccelerationData;
     List<Float> concurrentMagneticData;
@@ -59,6 +61,10 @@ public class MeasurementService extends Service {
     HandlerThread handlerThread;
     Handler handler;
 
+    //float used to get the average center
+    float sumX;
+    float sumY;
+    int readingCount;
     //binder object, will be returned when binding to an activity
     private final IBinder localBinder = new LocalBinder();
 
@@ -93,6 +99,12 @@ public class MeasurementService extends Service {
             @Override
             public void onSensorChanged(SensorEvent event) {
                 if(startReading) {
+                    if(initialReading == null && event.sensor.getType() == Sensor.TYPE_GRAVITY){
+                        initialReading = new DataPoint(
+                                sumX/readingCount,
+                                sumY/readingCount,
+                                System.currentTimeMillis());
+                    }
                     //updating the acceleration reading
                     if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
                         synchronized (concurrentDataList) {
@@ -115,12 +127,13 @@ public class MeasurementService extends Service {
 ////                    concurrentMagneticData.add(1,event.values[1]);
 //                        concurrentMagneticData.add(2, event.values[2]);
 //                    }
-                }else if(initialReading == null && event.sensor.getType() == Sensor.TYPE_GRAVITY){
-                    initialReading = new DataPoint(
-                            event.values[0],
-                            event.values[2],
-                            System.currentTimeMillis());
+
+                }else{
+                    sumX+=event.values[0];
+                    sumY+=event.values[2];
+                    readingCount++;
                 }
+
             }
 
             @Override
@@ -182,7 +195,6 @@ public class MeasurementService extends Service {
     // this starts recording the data
     public DataPoint startReading(){
         startReading = true;
-        initialReading.setTime(System.currentTimeMillis());
         return initialReading;
     }
 

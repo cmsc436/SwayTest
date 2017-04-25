@@ -16,12 +16,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".SwayMain">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
+
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Sub1"></activity>
 
         <service
             android:name=".MeasurementService"

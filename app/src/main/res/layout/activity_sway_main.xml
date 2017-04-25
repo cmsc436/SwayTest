@@ -17,22 +17,57 @@
         android:text="SWAY TEST"
         android:textAppearance="@style/TextAppearance.AppCompat.Display3" />
 
-    <TextView
-        android:id="@+id/sway_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@+id/textView"
-        android:layout_marginTop="60dp"
-        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nec placerat libero. Aenean eu odio sed velit consectetur scelerisque a rhoncus mauris. Aenean et congue urna. Mauris metus nulla, rutrum et magna sit amet, venenatis ullamcorper turpis" />
-
+        android:layout_above="@+id/sway_start"
+        android:visibility="invisible"/>
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/sway_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="37dp"
         android:text="Get Started"
         android:onClick="clickMe"/>
+
+    <Button
+        android:text="Show Image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:onClick="showPic"
+        android:id="@+id/sway_show_image"
+        android:visibility="invisible"/>
+
+    <Button
+        android:text="Show Score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image_view"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/sway_show_score"
+        android:onClick="showScore"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/sway_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="11dp"
+        android:text="Press Get Started"
+        android:textSize="43dp"/>
+    <!--<TextView-->
+        <!--android:id="@+id/sway_text"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nec placerat libero. Aenean eu odio sed velit consectetur scelerisque a rhoncus mauris. Aenean et congue urna. Mauris metus nulla, rutrum et magna sit amet, venenatis ullamcorper turpis"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_marginStart="11dp" />-->
 </RelativeLayout>

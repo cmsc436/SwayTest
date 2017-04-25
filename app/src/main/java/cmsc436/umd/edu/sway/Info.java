@@ -10,6 +10,9 @@ public class Info {
 
     final static String MAIN_SPREADSHEET_ID = "1YvI3CjS4ZlZQDYi5PaiA7WGGcoCsZfLoSFM0IdvdbDU";
     final static String PRIVATE_SPREADSHEET_ID = "1nxEXLLuyhMz5e2RNfAn-Zs1soCQRG-8nk6aUsnMvKSc";
+    final static String FOLDER_ID = "0B21g-Kd0CHS7YUp6c3RFWWdzclE";
+    final static String FILE_ENDING = "SWAY_TEST_";
+    static String USER_ID = "t07p01";
     final static String APP_NAME = "SWAY";
 
     public static int getActionCode(Sheets.Action action){

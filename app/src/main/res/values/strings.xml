@@ -23,4 +23,8 @@
         The Sway Test will consist of three different tests. Swipe left to view the instructions for each test, or if you already know how these tests work, press "Skip" to skip the instructions.
     </string>
     <string name="instruction_title">Instructions</string>
+
+
+    <!--<string name="app_name">Sway2</string>-->
+    <string name="text_with_paras">Instructions: You need to have eyes closed and\n legs opened</string>
 </resources>

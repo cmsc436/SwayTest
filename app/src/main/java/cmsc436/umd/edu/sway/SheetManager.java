@@ -2,7 +2,11 @@ package cmsc436.umd.edu.sway;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import edu.umd.cmsc436.sheets.Sheets;
 
@@ -34,7 +38,16 @@ public class SheetManager implements Sheets.Host {
     }
 
 
+    public void sendData(float distance, float[] rawData, Bitmap bitmap, Sheets.TestType testType){
+        sheets.writeData(testType,Info.USER_ID,distance);
+        sheets.writeTrials(testType,Info.USER_ID,rawData);
 
+        String title = Info.FILE_ENDING+(new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
+
+        sheets.uploadToDrive(Info.FOLDER_ID,title,bitmap);
+    }
+
+    
     @Override
     public int getRequestCode(Sheets.Action action) {
         return Info.getActionCode(action);

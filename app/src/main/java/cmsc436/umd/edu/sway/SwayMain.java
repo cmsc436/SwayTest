@@ -15,6 +15,7 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +23,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -29,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import edu.umd.cmsc436.sheets.Sheets;
 
 public class SwayMain extends AppCompatActivity {
 
@@ -122,6 +127,11 @@ public class SwayMain extends AppCompatActivity {
     TextToSpeech tts;
 
     TextView textView;
+    ImageView imageView;
+    Bitmap bitmapMain;
+
+    //final score
+    float finalScore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,8 +141,10 @@ public class SwayMain extends AppCompatActivity {
         tts = new TextToSpeech(this,onInitListener);
 
         textView = (TextView) findViewById(R.id.sway_text);
+        imageView = (ImageView) findViewById(R.id.image_view);
         getPermission();
 
+//        tts.setOnUtteranceProgressListener(utteranceProgressListener);
     }
 
     // binding the service to the activity
@@ -151,21 +163,36 @@ public class SwayMain extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if(isServiceBound) unbindService(serviceConnection);
+        tts.shutdown();
     }
 
     public void clickMe(View v){
+        tts.stop();
+        (findViewById(R.id.sway_start)).setOnClickListener(restartActivity);
+        ((Button)findViewById(R.id.sway_start)).setText("Restart");
+        textView.setText("Test Starting");
         speakText();
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        preTest.start();
     }
-    private void speakText(){
-        tts.speak(getString(R.string.test_instr_debug),TextToSpeech.QUEUE_FLUSH,null,null);
 
+    public void showPic(View v){
+        textView.setVisibility(View.INVISIBLE);
+        imageView.setVisibility(View.VISIBLE);
+
+    }
+
+    public void showScore(View v){
+        imageView.setVisibility(View.INVISIBLE);
+        textView.setText("Final Score: "+ finalScore);
+        textView.setVisibility(View.VISIBLE);
+    }
+
+
+    private void speakText(){
+        tts.speak(getString(R.string.test_instr_debug),TextToSpeech.QUEUE_ADD,null,null);
+        while(tts.isSpeaking()){
+
+        }
+        preTest.start();
     }
 
     // Responsible for connecting to the Measurement Service
@@ -193,21 +220,35 @@ public class SwayMain extends AppCompatActivity {
                         result==TextToSpeech.LANG_NOT_SUPPORTED){
                     Log.e("error", "This Language is not supported");
                 }
-//                else{
-//                    speakText();
-//                }
+
             }
 
         }
     };
 
-
+//    private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
+//        @Override
+//        public void onStart(String utteranceId) {
+//
+//        }
+//
+//        @Override
+//        public void onDone(String utteranceId) {
+//            Log.e("XXX", "onDone Called");
+//            preTest.start();
+//        }
+//
+//        @Override
+//        public void onError(String utteranceId) {
+//
+//        }
+//    };
 
     // TODO DEFINE WHAT HAPPENS IN PRETEST
     private CountDownTimer preTest = new CountDownTimer(PRETEST_DURATION,PRETEST_INTERVAL) {
         @Override
         public void onTick(long millisUntilFinished) {
-            textView.setText("TESTING --- PRETEST WAIT: "+millisUntilFinished/1000);
+            textView.setText("PRETEST(DB): "+millisUntilFinished/1000);
         }
 
         @Override
@@ -225,7 +266,7 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onTick(long millisUntilFinished) {
-            textView.setText("TESTING --- TESTING: "+millisUntilFinished/1000);
+            textView.setText("TESTING(DB): "+millisUntilFinished/1000);
         }
 
         @Override
@@ -237,10 +278,20 @@ public class SwayMain extends AppCompatActivity {
             // which will return the recorded data
             List<MeasurementService.DataPoint> l = measurementService.getDataList();
 
-            Bitmap bitmap = getDrawing(l);
-            String title = (new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
-            Log.d("PICNAME",title);
-            MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, title , "");
+            (findViewById(R.id.sway_show_image)).setVisibility(View.VISIBLE);
+            (findViewById(R.id.sway_show_score)).setVisibility(View.VISIBLE);
+            bitmapMain = getDrawing(l);
+//            String title = (new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
+
+//            MediaStore.Images.Media.insertImage(getContentResolver(), bitmapMain, title , "");
+            imageView.setImageBitmap(bitmapMain);
+
+            finalScore = getMetric(l);
+
+//            sheetManager.sendData(finalScore,
+//                    new float[]{},
+//                    bitmapMain,
+//                    Sheets.TestType.HEAD_SWAY);
         }
     };
 
@@ -252,9 +303,9 @@ public class SwayMain extends AppCompatActivity {
         Path path = new Path();
         Paint paint = new Paint();
 
-        paint.setColor(Color.RED);
+
         paint.setAntiAlias(true);
-        paint.setStrokeWidth(5);
+
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
@@ -264,12 +315,26 @@ public class SwayMain extends AppCompatActivity {
                 BITMAP_SIZE,
                 Bitmap.Config.ARGB_8888);
 
+
         Canvas canvas = new Canvas(bitmap);
 
         path.moveTo(BITMAP_SIZE/2,BITMAP_SIZE/2);
+        canvas.drawColor(Color.LTGRAY);
 
+        paint.setStrokeWidth(15);
+        paint.setColor(Color.GREEN);
+        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.125f,paint);
+        paint.setColor(Color.YELLOW);
+        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.25f,paint);
+        paint.setColor(Color.RED);
+        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.375f,paint);
+        paint.setColor(Color.DKGRAY);
+        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.5f,paint);
+
+
+        paint.setColor(Color.BLACK);
+        paint.setStrokeWidth(5);
         for(MeasurementService.DataPoint p: l){
-
             path.lineTo((p.getX() * CONSTANT)+ BITMAP_SIZE/2,(p.getY() * CONSTANT)+ BITMAP_SIZE/2);
         }
 
@@ -277,6 +342,21 @@ public class SwayMain extends AppCompatActivity {
 
 
         return bitmap;
+    }
+
+    private float getMetric(List<MeasurementService.DataPoint> l){
+        float distance = 0.0f;
+        MeasurementService.DataPoint prv = measurementService.getInitialReading();
+
+        for(MeasurementService.DataPoint d : l){
+            distance += Math.sqrt(
+              Math.pow(prv.getX() - d.getX(),2) +
+              Math.pow(prv.getY() - d.getY(),2)
+            );
+            prv = d;
+        }
+
+        return distance;
     }
 
     private void getPermission(){
@@ -320,4 +400,17 @@ public class SwayMain extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         sheetManager.onActivityResult(requestCode,resultCode,data);
     }
+
+    View.OnClickListener restartActivity = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            restartActivity();
+        }
+    };
+
+    //some times java is stupid
+    private void restartActivity(){
+        this.recreate();
+    }
+
 }
