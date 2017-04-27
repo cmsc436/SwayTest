@@ -349,9 +349,7 @@ public class SwayMain extends AppCompatActivity {
                 CONSTANT);
 
         Log.e("InitialReading",""+(measurementService.getInitialReading().getX() + translationVector[0]) + "  " +(measurementService.getInitialReading().getY() + translationVector[1]));
-        Log.e("InitialReading",""+(l.get(0).getX() + translationVector[0]) + "  " +(l.get(0).getY() + translationVector[1]));
         Log.e("InitialReading",""+(measurementService.getInitialReading().getX() + "  " +(measurementService.getInitialReading().getY())));
-        Log.e("InitialReading",""+(l.get(0).getX()) + "  " +(l.get(0).getY()));
 
         for(MeasurementService.DataPoint p: l){
             path.lineTo(
@@ -370,13 +368,12 @@ public class SwayMain extends AppCompatActivity {
     private float[] getTranslationVector(float centerX, float centerY,
                                          int bitmapXLength, int bitmapYLength,
                                          float constant){
-
-        return new float[]{
-                (bitmapXLength/2) - (centerX * constant),
-                (bitmapYLength/2) + (centerY * constant)
-//                ((centerX * constant) - bitmapXLength/2),
-//                (centerY * constant) - bitmapYLength/2
+        float[] f = new float[]{
+                ((bitmapXLength/2) + (centerX * constant)),
+                ((bitmapYLength/2) - (centerY * constant))
         };
+        Log.e("TRANSITION", ""+ f[0]+ "  "+ f[1]);
+        return f;
     }
 
 
