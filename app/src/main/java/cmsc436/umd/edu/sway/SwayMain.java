@@ -364,7 +364,7 @@ public class SwayMain extends AppCompatActivity {
 
         return bitmap;
     }
-
+    //testing transfer push
     private float[] getTranslationVector(float centerX, float centerY,
                                          int bitmapXLength, int bitmapYLength,
                                          float constant){
