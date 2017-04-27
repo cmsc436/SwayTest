@@ -30,6 +30,9 @@ public class MeasurementService extends Service {
     //Reading Delay in MICRO-seconds
     private int SENSOR_READING_DELAY = 5000; // take a data every 5 milliseconds
 
+    // Sensor type, depending on what is available
+    private int SENSOR_TYPE = -1;
+
     //initial calibration, used as the center for all other data recording
     private DataPoint initialReading;
 
@@ -55,8 +58,9 @@ public class MeasurementService extends Service {
     // Sensor Objects
     SensorManager sensorManager;
     SensorEventListener sensorEventListener;
-    Sensor magneticSensor; // might not use it
-    Sensor accelerationSensor;
+//    Sensor magneticSensor; // might not use instructionsTitle
+    Sensor accelSensor;
+    Sensor gravitySensor;
 
     // threads handling
     HandlerThread handlerThread;
@@ -93,14 +97,14 @@ public class MeasurementService extends Service {
 
         // initializing sensor elements
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        accelerationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 
         sensorEventListener= new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
                 if(startReading) {
-                    if(initialReading == null && event.sensor.getType() == Sensor.TYPE_GRAVITY){
+                    if(initialReading == null && event.sensor.getType() == SENSOR_TYPE){
                         Log.d("INIT_MEASURE", ""+sumX+ "  " + sumY + "   " + readingCount);
                         initialReading = new DataPoint(
 //                                sumX/readingCount,
@@ -112,7 +116,7 @@ public class MeasurementService extends Service {
                         );
                     }
                     //updating the acceleration reading
-                    if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+                    if (event.sensor.getType() == SENSOR_TYPE) {
                         synchronized (concurrentDataList) {
                             synchronized (currentReading) {
                                 currentReading.setX(event.values[0]); // phone's x
@@ -190,16 +194,24 @@ public class MeasurementService extends Service {
     // register sensors
     private void registerSensor(){
 
-        sensorManager.registerListener(
+        if(gravitySensor != null) {
+
+            sensorManager.registerListener(
+                    sensorEventListener,
+                    gravitySensor,
+                    SENSOR_READING_DELAY,
+                    handler);
+
+            SENSOR_TYPE = Sensor.TYPE_GRAVITY;
+        }
+        else{
+            sensorManager.registerListener(
                 sensorEventListener,
-                accelerationSensor,
+                accelSensor,
                 SENSOR_READING_DELAY,
                 handler);
-        sensorManager.registerListener(
-                sensorEventListener,
-                magneticSensor,
-                SENSOR_READING_DELAY,
-                handler);
+            SENSOR_TYPE = Sensor.TYPE_ACCELEROMETER;
+        }
     }
 
     // MUST BE CALLED, ELSE NO DATA WILL BE CALLED

@@ -39,6 +39,8 @@ import edu.umd.cmsc436.sheets.Sheets;
 
 public class SwayMain extends AppCompatActivity {
 
+    // TESTING PUSH
+
     /**
      *          -----------------------------------------------
      *          ----------------- PLEASE READ -----------------
@@ -353,8 +355,8 @@ public class SwayMain extends AppCompatActivity {
 
         for(MeasurementService.DataPoint p: l){
             path.lineTo(
-                    (p.getX()) + translationVector[0],
-                    (p.getY()) + translationVector[1]
+                    (p.getX() * CONSTANT) + translationVector[0],
+                    (p.getY() * CONSTANT) + translationVector[1]
 //                    (p.getX() * CONSTANT)+BITMAP_SIZE/2,(p.getY() * CONSTANT)+BITMAP_SIZE/2
             );
         }
@@ -371,7 +373,7 @@ public class SwayMain extends AppCompatActivity {
 
         return new float[]{
                 (bitmapXLength/2) - (centerX * constant),
-                (bitmapYLength/2) - (centerY * constant)
+                (bitmapYLength/2) + (centerY * constant)
 //                ((centerX * constant) - bitmapXLength/2),
 //                (centerY * constant) - bitmapYLength/2
         };
