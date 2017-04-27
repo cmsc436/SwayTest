@@ -286,9 +286,7 @@ public class SwayMain extends AppCompatActivity {
             (findViewById(R.id.sway_show_image)).setVisibility(View.VISIBLE);
             (findViewById(R.id.sway_show_score)).setVisibility(View.VISIBLE);
             bitmapMain = getDrawing(l);
-//            String title = (new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
 
-//            MediaStore.Images.Media.insertImage(getContentResolver(), bitmapMain, title , "");
             imageView.setImageBitmap(bitmapMain);
 
             finalScore = getMetric(l);
@@ -348,14 +346,10 @@ public class SwayMain extends AppCompatActivity {
                 BITMAP_SIZE,
                 CONSTANT);
 
-        Log.e("InitialReading",""+(measurementService.getInitialReading().getX() + translationVector[0]) + "  " +(measurementService.getInitialReading().getY() + translationVector[1]));
-        Log.e("InitialReading",""+(measurementService.getInitialReading().getX() + "  " +(measurementService.getInitialReading().getY())));
-
         for(MeasurementService.DataPoint p: l){
             path.lineTo(
                     (p.getX() * CONSTANT) + translationVector[0],
                     (p.getY() * CONSTANT) + translationVector[1]
-//                    (p.getX() * CONSTANT)+BITMAP_SIZE/2,(p.getY() * CONSTANT)+BITMAP_SIZE/2
             );
         }
 
@@ -368,12 +362,10 @@ public class SwayMain extends AppCompatActivity {
     private float[] getTranslationVector(float centerX, float centerY,
                                          int bitmapXLength, int bitmapYLength,
                                          float constant){
-        float[] f = new float[]{
-                ((bitmapXLength/2) + (centerX * constant)),
-                ((bitmapYLength/2) - (centerY * constant))
+        return new float[]{
+                -(centerX * constant) + (bitmapXLength/2),
+                -(centerY * constant) + (bitmapYLength/2)
         };
-        Log.e("TRANSITION", ""+ f[0]+ "  "+ f[1]);
-        return f;
     }
 
 
