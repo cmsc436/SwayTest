@@ -10,6 +10,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -100,17 +101,22 @@ public class MeasurementService extends Service {
             public void onSensorChanged(SensorEvent event) {
                 if(startReading) {
                     if(initialReading == null && event.sensor.getType() == Sensor.TYPE_GRAVITY){
+                        Log.d("INIT_MEASURE", ""+sumX+ "  " + sumY + "   " + readingCount);
                         initialReading = new DataPoint(
-                                sumX/readingCount,
-                                sumY/readingCount,
-                                System.currentTimeMillis());
+//                                sumX/readingCount,
+//                                sumY/readingCount,
+//                                System.currentTimeMillis()
+                                event.values[0],
+                                event.values[2],
+                                System.currentTimeMillis()
+                        );
                     }
                     //updating the acceleration reading
                     if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
                         synchronized (concurrentDataList) {
                             synchronized (currentReading) {
-                                currentReading.setX(initialReading.getX() - event.values[0]); // phone's x
-                                currentReading.setY(initialReading.getY() - event.values[2]); // phone's z
+                                currentReading.setX(event.values[0]); // phone's x
+                                currentReading.setY(event.values[2]); // phone's z
                                 currentReading.setTime(System.currentTimeMillis()-initialReading.getTime());
 
                                 concurrentDataList.add(currentReading.getDeepCopy());
@@ -128,11 +134,14 @@ public class MeasurementService extends Service {
 //                        concurrentMagneticData.add(2, event.values[2]);
 //                    }
 
-                }else{
-                    sumX+=event.values[0];
-                    sumY+=event.values[2];
-                    readingCount++;
                 }
+//                else{
+//                    synchronized (event.values) {
+//                        sumX += event.values[0];
+//                        sumY += event.values[2];
+//                        readingCount++;
+//                    }
+//                }
 
             }
 
@@ -174,6 +183,8 @@ public class MeasurementService extends Service {
         SENSOR_READING_DELAY = delay;
         registerSensor();
     }
+
+
 
 
     // register sensors

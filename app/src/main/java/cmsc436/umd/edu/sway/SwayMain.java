@@ -9,8 +9,10 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.MediaStore;
@@ -187,11 +189,12 @@ public class SwayMain extends AppCompatActivity {
     }
 
 
+    //TODO UNCOMMENT TTS
     private void speakText(){
-        tts.speak(getString(R.string.test_instr_debug),TextToSpeech.QUEUE_ADD,null,null);
-        while(tts.isSpeaking()){
-
-        }
+//        tts.speak(getString(R.string.test_instr_debug),TextToSpeech.QUEUE_ADD,null,null);
+//        while(tts.isSpeaking()){
+//
+//        }
         preTest.start();
     }
 
@@ -297,7 +300,7 @@ public class SwayMain extends AppCompatActivity {
 
     private Bitmap getDrawing(List<MeasurementService.DataPoint> l){
         final int BITMAP_SIZE = 900;
-        final float ACCELERATION_LIMIT = 4.5f;
+        final float ACCELERATION_LIMIT = 4.5f; //max accle before someone falls
         final float CONSTANT = (BITMAP_SIZE/2) / ACCELERATION_LIMIT;
 
         Path path = new Path();
@@ -318,7 +321,7 @@ public class SwayMain extends AppCompatActivity {
 
         Canvas canvas = new Canvas(bitmap);
 
-        path.moveTo(BITMAP_SIZE/2,BITMAP_SIZE/2);
+
         canvas.drawColor(Color.LTGRAY);
 
         paint.setStrokeWidth(15);
@@ -334,8 +337,26 @@ public class SwayMain extends AppCompatActivity {
 
         paint.setColor(Color.BLACK);
         paint.setStrokeWidth(5);
+        path.moveTo(BITMAP_SIZE/2,BITMAP_SIZE/2);
+
+        float[] translationVector = getTranslationVector(
+                measurementService.getInitialReading().getX(),
+                measurementService.getInitialReading().getY(),
+                BITMAP_SIZE,
+                BITMAP_SIZE,
+                CONSTANT);
+
+        Log.e("InitialReading",""+(measurementService.getInitialReading().getX() + translationVector[0]) + "  " +(measurementService.getInitialReading().getY() + translationVector[1]));
+        Log.e("InitialReading",""+(l.get(0).getX() + translationVector[0]) + "  " +(l.get(0).getY() + translationVector[1]));
+        Log.e("InitialReading",""+(measurementService.getInitialReading().getX() + "  " +(measurementService.getInitialReading().getY())));
+        Log.e("InitialReading",""+(l.get(0).getX()) + "  " +(l.get(0).getY()));
+
         for(MeasurementService.DataPoint p: l){
-            path.lineTo((p.getX() * CONSTANT)+ BITMAP_SIZE/2,(p.getY() * CONSTANT)+ BITMAP_SIZE/2);
+            path.lineTo(
+                    (p.getX()) + translationVector[0],
+                    (p.getY()) + translationVector[1]
+//                    (p.getX() * CONSTANT)+BITMAP_SIZE/2,(p.getY() * CONSTANT)+BITMAP_SIZE/2
+            );
         }
 
         canvas.drawPath(path,paint);
@@ -343,6 +364,19 @@ public class SwayMain extends AppCompatActivity {
 
         return bitmap;
     }
+
+    private float[] getTranslationVector(float centerX, float centerY,
+                                         int bitmapXLength, int bitmapYLength,
+                                         float constant){
+
+        return new float[]{
+                (bitmapXLength/2) - (centerX * constant),
+                (bitmapYLength/2) - (centerY * constant)
+//                ((centerX * constant) - bitmapXLength/2),
+//                (centerY * constant) - bitmapYLength/2
+        };
+    }
+
 
     private float getMetric(List<MeasurementService.DataPoint> l){
         float distance = 0.0f;
