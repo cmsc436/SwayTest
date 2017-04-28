@@ -37,24 +37,51 @@ public class DisplayImages {
         // Define the paint
         Paint paint = new Paint();
         // Define shape and style for grids
-        paint.setStyle(Paint.Style.FILL);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStyle(Paint.Style.STROKE); //CHANGE TO FILL LATER
+        //Set stroke with
+        paint.setStrokeWidth(2);
         // Create canvas, drawing block
         Canvas canvas = new Canvas(bitmap);
         // Set Background color
-        canvas.drawColor(Color.BLACK);
+       // canvas.drawColor(Color.BLACK);
         // Set Paint Color
-        paint.setColor(Color.WHITE);
+        paint.setColor(Color.BLACK);
         // Calculate the length of each Quadrant
         int H = (int)Math.sqrt(2*(BITMAP_SIZE*BITMAP_SIZE)/list.size());
 
-        for(int i = 0; i <= BITMAP_SIZE/H; i++){
-            for(int j = 0; j <= BITMAP_SIZE/H; j++){
-                Log.d("HERE","dd");
+       // int[][] quadrantCount = countQuadrant(list,H);
+        //Draw heat map
+        for(int i = 0; i < (int)BITMAP_SIZE/H; i++){
+            for(int j = 0; j < (int)BITMAP_SIZE/H; j++){
                 canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+//                double count = quadrantCount[j][i]/list.size();
+//                // Setting up the heat
+//                if( count <= .05){
+//                    paint.setColor(Color.parseColor("#ffffb2"));
+//                    canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+//                }else if (count > .05 && count <= .1 ){
+//                    paint.setColor(Color.parseColor("#fecc5c"));
+//                    canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+//                }else if (count > .1 && count <= .15){
+//                    paint.setColor(Color.parseColor("#fd8d3c"));
+//                    canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+//                }else if(count > .15 && count <= .2){
+//                    paint.setColor(Color.parseColor("#f03b20"));
+//                    canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+//                }else{
+//                    paint.setColor(Color.parseColor("#bd0026"));
+//                    canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+//                }
             }
         }
+        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
+        // Plot points
+        for (MeasurementService.DataPoint p: list) {
+            paint.setColor(Color.RED);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],5.5f,paint);
+        }
+
 
         return bitmap;
     }
@@ -72,7 +99,7 @@ public class DisplayImages {
         // Defines shape and size
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeCap(Paint.Cap.SQUARE);
 
         // Creates a drawing block
         Bitmap bitmap = Bitmap.createBitmap(
@@ -139,9 +166,13 @@ public class DisplayImages {
     }
     // Iterate the list of XY points and determine its quadrant
     private int[][] countQuadrant(List<MeasurementService.DataPoint> list, int sizeOfQuadrants){
-        int[][] quadrantsCounts = new int[sizeOfQuadrants][sizeOfQuadrants];
+        int[][] quadrantsCounts = new int[BITMAP_SIZE/sizeOfQuadrants][BITMAP_SIZE/sizeOfQuadrants];
+        float[] transXY;
+        transXY = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE, BITMAP_SIZE, CONSTANT);
         for(int i = 0; i< list.size();i++) {
-            quadrantsCounts[(int)list.get(i).getX()/sizeOfQuadrants][(int)list.get(i).getY()/sizeOfQuadrants]++;
+            float x = (list.get(i).getX());
+            float y = (list.get(i).getY());
+            quadrantsCounts[(int)(((x*CONSTANT) + transXY[0])/sizeOfQuadrants)][(int)(( (y*CONSTANT) + transXY[1])/sizeOfQuadrants)]++;
         }
         return quadrantsCounts;
     }

@@ -300,7 +300,7 @@ public class SwayMain extends AppCompatActivity {
 
             // Added the replacement using DisplayImages :: BEGIN
             DisplayImages visuals = new DisplayImages(l, measurementService.getInitialReading());
-           // bitmapMain = visuals.getPath(); // Change to get Quadrant Analysis :: TESTING
+            //bitmapMain = visuals.getPath(); // Change to get Quadrant Analysis :: TESTING
             bitmapMain = visuals.getQuadrantAnalysis();
             imageView.setImageBitmap(bitmapMain);
             finalScore = visuals.getMetric();
