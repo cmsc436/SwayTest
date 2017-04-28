@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.util.Log;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class DisplayImages {
     List<MeasurementService.DataPoint> list;
     MeasurementService.DataPoint center;
 
+    // Initialize the presets
     final int BITMAP_SIZE = 900;
     final float ACCELERATION_LIMIT = 4.5f; //max accle before someone falls
     final float CONSTANT = (BITMAP_SIZE/2) / ACCELERATION_LIMIT;
@@ -29,26 +31,37 @@ public class DisplayImages {
         this.center = center;
     }
 
-    private Bitmap getQuadrantAnalysis(){
+    public Bitmap getQuadrantAnalysis(){
         // Create bitmap to save image
         Bitmap bitmap = Bitmap.createBitmap(BITMAP_SIZE,BITMAP_SIZE, Bitmap.Config.ARGB_8888);
         // Define the paint
         Paint paint = new Paint();
         // Define shape and style for grids
-        paint.setStyle(Paint.Style.STROKE);
+        paint.setStyle(Paint.Style.FILL);
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         // Create canvas, drawing block
         Canvas canvas = new Canvas(bitmap);
         // Set Background color
+        canvas.drawColor(Color.BLACK);
+        // Set Paint Color
+        paint.setColor(Color.WHITE);
+        // Calculate the length of each Quadrant
+        int H = (int)Math.sqrt(2*(BITMAP_SIZE*BITMAP_SIZE)/list.size());
 
+        for(int i = 0; i <= BITMAP_SIZE/H; i++){
+            for(int j = 0; j <= BITMAP_SIZE/H; j++){
+                Log.d("HERE","dd");
+                canvas.drawRect(i*H,j*H,(i+1)*H,(j+1)*H,paint);
+            }
+        }
 
-        return null;
+        return bitmap;
     }
 
 
     // Creates a drawing of the path with boundaries
-    public Bitmap getDrawing(){
+    public Bitmap getPath(){
 
         // Path defines line, Paint defines the color
         Path path = new Path();
@@ -72,6 +85,7 @@ public class DisplayImages {
 
         // Background color
         canvas.drawColor(Color.LTGRAY);
+
         // Draws 4 circles: green, yellow, red, gray
         paint.setStrokeWidth(15);
         paint.setColor(Color.GREEN);
@@ -108,18 +122,7 @@ public class DisplayImages {
         // Return the bitmap
         return bitmap;
     }
-
-    //Translation of XY to X'Y' of our coordinate system
-    private float[] getTranslationVector(float centerX, float centerY,
-                                         int bitmapXLength, int bitmapYLength,
-                                         float constant){
-        return new float[]{
-                -(centerX * constant) + (bitmapXLength/2),
-                -(centerY * constant) + (bitmapYLength/2)
-        };
-    }
-
-
+    // Returns the length of the paths
     public float getMetric(){
         float distance = 0.0f;
         MeasurementService.DataPoint prv = center;
@@ -134,6 +137,29 @@ public class DisplayImages {
 
         return distance;
     }
+    // Iterate the list of XY points and determine its quadrant
+    private int[][] countQuadrant(List<MeasurementService.DataPoint> list, int sizeOfQuadrants){
+        int[][] quadrantsCounts = new int[sizeOfQuadrants][sizeOfQuadrants];
+        for(int i = 0; i< list.size();i++) {
+            quadrantsCounts[(int)list.get(i).getX()/sizeOfQuadrants][(int)list.get(i).getY()/sizeOfQuadrants]++;
+        }
+        return quadrantsCounts;
+    }
+
+
+    //Translation of XY to X'Y' of our coordinate system
+    private float[] getTranslationVector(float centerX, float centerY,
+                                         int bitmapXLength, int bitmapYLength,
+                                         float constant){
+        return new float[]{
+                -(centerX * constant) + (bitmapXLength/2),
+                -(centerY * constant) + (bitmapYLength/2)
+        };
+    }
+
+
+
+
 
 
 }

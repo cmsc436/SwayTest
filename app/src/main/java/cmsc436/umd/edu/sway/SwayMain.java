@@ -285,11 +285,26 @@ public class SwayMain extends AppCompatActivity {
 
             (findViewById(R.id.sway_show_image)).setVisibility(View.VISIBLE);
             (findViewById(R.id.sway_show_score)).setVisibility(View.VISIBLE);
+
+            /**
+             * Adding Block of code here to get the images
+             * */
+
+            /* Commenting out this area;
             bitmapMain = getDrawing(l);
 
             imageView.setImageBitmap(bitmapMain);
 
             finalScore = getMetric(l);
+            */
+
+            // Added the replacement using DisplayImages :: BEGIN
+            DisplayImages visuals = new DisplayImages(l, measurementService.getInitialReading());
+           // bitmapMain = visuals.getPath(); // Change to get Quadrant Analysis :: TESTING
+            bitmapMain = visuals.getQuadrantAnalysis();
+            imageView.setImageBitmap(bitmapMain);
+            finalScore = visuals.getMetric();
+            // END
 
 //            sheetManager.sendData(finalScore,
 //                    new float[]{},
@@ -298,6 +313,7 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
+    /*
     private Bitmap getDrawing(List<MeasurementService.DataPoint> l){
         final int BITMAP_SIZE = 900;
         final float ACCELERATION_LIMIT = 4.5f; //max accle before someone falls
@@ -383,7 +399,7 @@ public class SwayMain extends AppCompatActivity {
 
         return distance;
     }
-
+    */
     private void getPermission(){
         if (ContextCompat.checkSelfPermission(SwayMain.this,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
