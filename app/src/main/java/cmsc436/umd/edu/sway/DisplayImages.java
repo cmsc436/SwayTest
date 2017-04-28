@@ -10,7 +10,7 @@ import android.graphics.Point;
 import java.util.List;
 
 /**
- * Created by csala on 4/27/2017.
+ * Created by csalaman on 4/27/2017.
  */
 
 public class DisplayImages {
@@ -30,6 +30,17 @@ public class DisplayImages {
     }
 
     private Bitmap getQuadrantAnalysis(){
+        // Create bitmap to save image
+        Bitmap bitmap = Bitmap.createBitmap(BITMAP_SIZE,BITMAP_SIZE, Bitmap.Config.ARGB_8888);
+        // Define the paint
+        Paint paint = new Paint();
+        // Define shape and style for grids
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        // Create canvas, drawing block
+        Canvas canvas = new Canvas(bitmap);
+        // Set Background color
 
 
         return null;
@@ -42,7 +53,6 @@ public class DisplayImages {
         // Path defines line, Paint defines the color
         Path path = new Path();
         Paint paint = new Paint();
-
 
         paint.setAntiAlias(true);
 
@@ -99,7 +109,7 @@ public class DisplayImages {
         return bitmap;
     }
 
-    //testing transfer push
+    //Translation of XY to X'Y' of our coordinate system
     private float[] getTranslationVector(float centerX, float centerY,
                                          int bitmapXLength, int bitmapYLength,
                                          float constant){
@@ -124,4 +134,6 @@ public class DisplayImages {
 
         return distance;
     }
+
+
 }
