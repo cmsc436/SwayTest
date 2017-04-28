@@ -11,7 +11,7 @@ import android.util.Log;
 import java.util.List;
 
 /**
- * Created by csalaman on 4/27/2017.
+ * Created by Glorious csalaman on 4/27/2017.
  */
 
 public class DisplayImages {
@@ -164,6 +164,7 @@ public class DisplayImages {
 
         return distance;
     }
+
     // Iterate the list of XY points and determine its quadrant
     private int[][] countQuadrant(List<MeasurementService.DataPoint> list, int sizeOfQuadrants){
         int[][] quadrantsCounts = new int[BITMAP_SIZE/sizeOfQuadrants][BITMAP_SIZE/sizeOfQuadrants];
