@@ -8,13 +8,23 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Glorious csalaman on 4/27/2017.
  */
 
-
+/**
+ * TO-DO:
+ *  - Must create buckets which contains the counts of repeated quadrant counts:
+ *      - # of buckets = # of shades
+ *
+ */
 
 public class DisplayImages {
 
@@ -46,6 +56,10 @@ public class DisplayImages {
 
     //Regions of points
     Region[][] regions;
+
+    //int Max count and Min count
+    int min;
+    int max;
 
     // Constructor, params: XY Coordinate list, XY center
     public DisplayImages(List<MeasurementService.DataPoint> list, MeasurementService.DataPoint center){
@@ -81,47 +95,45 @@ public class DisplayImages {
 
 
         int[][] quadrantCount = countQuadrant(list,H);
+        int addent = (max-min)/5;
         /*Draw heat map
          * Note: The params:
          *  - drawRect(X_on_Left,Y_on_Top,X_on_Right,Y_on_Bottom,paint)
         */
         for(int y = 0; y < (int)BITMAP_SIZE/H; y++){
             for(int x = 0; x < (int)BITMAP_SIZE/H; x++){
-                Log.e("Dimensions of GRid",BITMAP_SIZE/H+" x "+BITMAP_SIZE/H);
-                //canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint); // TRY WITH STROKE, CHANGING IT
-                // Get the proportion of the count with size
+                // Get the count
                 double count = (quadrantCount[x][y]);
                 // Setting up the heat
-                if( count <= .05){
-                    Log.e("LESS THAN 5%",""+count);
+                if( count >min && count <= min+addent){
                     paint.setColor(Color.parseColor("#ffffb2"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if (count > .05 && count <= .1 ){
-                    Log.e("Between 5% and 10%",""+count);
+                }else if (count > min+addent && count <= min+addent+addent ){
                     paint.setColor(Color.parseColor("#fecc5c"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if (count > .1 && count <= .15){
-                    Log.e("Betwwen 10% and 15%",""+count);
+                }else if (count > min+addent+addent && count <= min+addent+addent+addent ){
                     paint.setColor(Color.parseColor("#fd8d3c"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if(count > .15 && count <= .2){
-                    Log.e("Between 15% and 20%",""+count);
+                }else if(count > min+addent+addent+addent  && count <= min+addent+addent+addent+addent){
                     paint.setColor(Color.parseColor("#f03b20"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else{
-                    Log.e("MORE THAN 20%",""+count);
+                }else if(count > min+addent+addent+addent+addent ){
                     paint.setColor(Color.parseColor("#bd0026"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
+                }else{
+                    paint.setColor(Color.parseColor("#ffddb2"));
+                    canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
                 }
+
             }
         }
-        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
-        // Plot points
-        for (MeasurementService.DataPoint p: list) {
-            paint.setColor(Color.GREEN);
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],5.5f,paint);
-        }
+//        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
+//        // Plot points
+//        for (MeasurementService.DataPoint p: list) {
+//            paint.setColor(Color.RED);
+//            paint.setStyle(Paint.Style.FILL);
+//            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],2.5f,paint);
+//        }
 
 
         return bitmap;
@@ -213,9 +225,9 @@ public class DisplayImages {
         transXY = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE, BITMAP_SIZE, CONSTANT);
 
         //Testing max,min
-        int min = 999999999;
-        int max = -999999999;
-        // TESTING
+         min = 999999999;
+         max = -999999999;
+        // TESTING000
 
         for (MeasurementService.DataPoint p : list) {
           // quadrantsCounts[(int)((p.getX()*CONSTANT)+transXY[0])/sizeOfQuadrants][(int)((p.getY()*CONSTANT)+transXY[1])/sizeOfQuadrants]+=1;
@@ -271,7 +283,40 @@ public class DisplayImages {
         return null;
     }
 
-
+//        // Determines how to split the regions
+//    private int[] calculateJenksNaturalBreaksClasses(int[][] counts){
+//        // Get the set of elements from counts
+//        int[] classes = new int[5];
+//        List<Integer> values = new ArrayList<Integer>();
+//        for(int i = 0 ; i < counts.length; i++){
+//            for(int j = 0; j < counts[i].length; j++){
+//                values.add(counts[i][j]);
+//            }
+//        }
+//        //Sort the elements, get the set
+//        Collections.sort(values);
+//        HashSet<Integer> set = new HashSet<>(values);
+//        values  = new ArrayList<>(set);
+//        // Calculate diff, add diff to array diff
+//        List<Integer> diff = new ArrayList<>();
+//        for(int i = 0; i < values.size()-1;i++){
+//            diff.add(Math.abs(values.get(i)-values.get(i+1)));
+//        }
+//        Collections.sort(diff);
+//        Collections.reverse(diff);
+//
+//        // Get the 5 largest values
+//        for(int i = 0; i < 5; i++){
+//            try {
+//                classes[i] = diff.get(i);
+//                Log.e("Largest "+ i+" ",""+diff.get(i));
+//            }catch (Exception e){
+//                classes[i] = 0;
+//            }
+//
+//            }
+//        return classes;
+//    }
 
 
 }
