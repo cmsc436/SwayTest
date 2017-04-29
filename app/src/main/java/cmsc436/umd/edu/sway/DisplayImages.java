@@ -95,6 +95,7 @@ public class DisplayImages {
 
 
         int[][] quadrantCount = countQuadrant(list,H);
+        //Quantile method
         int addent = (max-min)/5;
         /*Draw heat map
          * Note: The params:
@@ -106,27 +107,39 @@ public class DisplayImages {
                 double count = (quadrantCount[x][y]);
                 // Setting up the heat
                 if( count >min && count <= min+addent){
-                    paint.setColor(Color.parseColor("#ffffb2"));
+                    paint.setColor(Color.parseColor("#c7e9b4"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if (count > min+addent && count <= min+addent+addent ){
-                    paint.setColor(Color.parseColor("#fecc5c"));
+                }else if (count > min+addent && count <= min+(addent*2) ){
+                    paint.setColor(Color.parseColor("#7fcdbb"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if (count > min+addent+addent && count <= min+addent+addent+addent ){
-                    paint.setColor(Color.parseColor("#fd8d3c"));
+                }else if (count > min+(addent*2) && count <= min+(addent*3) ){
+                    paint.setColor(Color.parseColor("#41b6c4"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if(count > min+addent+addent+addent  && count <= min+addent+addent+addent+addent){
-                    paint.setColor(Color.parseColor("#f03b20"));
+                }else if(count > min+(addent*3)  && count <= min+(addent*4)){
+                    paint.setColor(Color.parseColor("#2c7fb8"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
-                }else if(count > min+addent+addent+addent+addent ){
-                    paint.setColor(Color.parseColor("#bd0026"));
+                }else if(count > min+(addent*4) ){
+                    paint.setColor(Color.parseColor("#253494"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
                 }else{
-                    paint.setColor(Color.parseColor("#ffddb2"));
+                    paint.setColor(Color.parseColor("#ffffcc"));
                     canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
                 }
 
             }
         }
+
+        //Draw grids
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(5);
+        paint.setColor(Color.BLACK);
+        for(int y = 0; y < (int)BITMAP_SIZE/H; y++){
+            for(int x = 0; x < (int)BITMAP_SIZE/H; x++){
+                    canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
+            }
+        }
+
+
 //        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
 //        // Plot points
 //        for (MeasurementService.DataPoint p: list) {
