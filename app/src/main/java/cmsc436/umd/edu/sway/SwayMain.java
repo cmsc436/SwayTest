@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.annotation.NonNull;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -120,6 +122,13 @@ public class SwayMain extends AppCompatActivity {
     private final int PRETEST_DURATION = 5000;
     private final int PRETEST_INTERVAL = 1000; //interval for update of pre-test
 
+    // Intent constants
+    final static String HEATMAP = "HEAT_MAP";
+    final static String PATHMAP = "PATH_MAP";
+    final static String FINAL_SCORE = "FINAL_SCORE";
+    final static String TRIAL_NUM = "TRIAL_COUNT";
+    final static String TEST_TYPE = "TEST_TPE";
+
     // service to access all of the data
     MeasurementService measurementService;
     boolean isServiceBound = false;
@@ -129,6 +138,8 @@ public class SwayMain extends AppCompatActivity {
 
     //Text to Speech
     TextToSpeech tts;
+    //Speech Recognition
+    SpeechRecognizer speechRecognizer;
 
     TextView textView;
     ImageView imageView;
@@ -136,19 +147,49 @@ public class SwayMain extends AppCompatActivity {
 
     //final score
     float finalScore;
+
+    //trial number
+    int trialNumber;
+
+    // TTS Bundle
+    Bundle ttsParams;
+
+    // current Test Type
+    Sheets.TestType currentTest;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
 
-        sheetManager = new SheetManager(this);
-        tts = new TextToSpeech(this,onInitListener);
+        sheetManager = new SheetManager(this); // takes care of sending the data to oGoogle Sheets
+
+        tts = new TextToSpeech(this,onInitListener); // Responsible for "Talking:
+
+        ttsParams = new Bundle(); // the Bundle used by TTS to recognize its Engine's Utterance
+        ttsParams.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"1");// setting up KV pair
+
+        // there have been time then the listener is not set up correctly, it is device specific
+        int message =  tts.setOnUtteranceProgressListener(utteranceProgressListener);
+        if(message == TextToSpeech.ERROR) Toast.makeText(this,"PROBLEM SETTING UTTRANCE ",Toast.LENGTH_LONG).show();
+        else Toast.makeText(this,"GOOD SETTING UTTRANCE ",Toast.LENGTH_LONG).show();
+
 
         textView = (TextView) findViewById(R.id.sway_text);
         imageView = (ImageView) findViewById(R.id.image_view);
         getPermission();
 
-//        tts.setOnUtteranceProgressListener(utteranceProgressListener);
+        // sets up the current Test Type
+        currentTest = (Info.getTestType() != null) ?
+                Info.getTestType() : (Sheets.TestType) getIntent().getSerializableExtra(TEST_TYPE);
+
+//        // TODO REMOVE LATER ONLY FOR DEBUGGING
+//        if(currentTest == null) currentTest = Sheets.TestType.SWAY_OPEN_APART;
+
+
+        trialNumber = getIntent().getIntExtra(TRIAL_NUM,0); // trials to repeat
+
+        // will take care of taking in vocal input
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
     }
 
     // binding the service to the activity
@@ -170,34 +211,44 @@ public class SwayMain extends AppCompatActivity {
         tts.shutdown();
     }
 
+    // starting the test
+    // TODO replace this with something even better
     public void clickMe(View v){
         tts.stop();
         (findViewById(R.id.sway_start)).setOnClickListener(restartActivity);
         ((Button)findViewById(R.id.sway_start)).setText("Restart");
         textView.setText("Test Starting");
-        speakText();
+        speakText(currentTest);
     }
 
+    // shows the loaded picture
     public void showPic(View v){
         textView.setVisibility(View.INVISIBLE);
         imageView.setVisibility(View.VISIBLE);
 
     }
 
+    // shows score
     public void showScore(View v){
         imageView.setVisibility(View.INVISIBLE);
         textView.setText("Final Score: "+ finalScore);
         textView.setVisibility(View.VISIBLE);
+
     }
 
+    // Handles Intro Speech depending on the Test Type
+    private void speakText(Sheets.TestType t){
+        switch (t){
+            case SWAY_OPEN_APART:
+                tts.speak(getString(R.string.test_instr_1),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+            case SWAY_OPEN_TOGETHER:
+                tts.speak(getString(R.string.test_instr_2),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+            case SWAY_CLOSED:
+                tts.speak(getString(R.string.test_instr_3),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+            default:
+                tts.speak(getString(R.string.test_instr_practice),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+        }
 
-    //TODO UNCOMMENT TTS
-    private void speakText(){
-//        tts.speak(getString(R.string.test_instr_debug),TextToSpeech.QUEUE_ADD,null,null);
-//        while(tts.isSpeaking()){
-//
-//        }
-        preTest.start();
     }
 
     // Responsible for connecting to the Measurement Service
@@ -231,23 +282,29 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
-//    private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
-//        @Override
-//        public void onStart(String utteranceId) {
-//
-//        }
-//
-//        @Override
-//        public void onDone(String utteranceId) {
-//            Log.e("XXX", "onDone Called");
-//            preTest.start();
-//        }
-//
-//        @Override
-//        public void onError(String utteranceId) {
-//
-//        }
-//    };
+    // TODO HANDLE VOICE RECOG WHEN THE INTRO IS GOING
+    private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
+        @Override
+        public void onStart(String utteranceId) {
+
+        }
+
+        @Override
+        public void onDone(String utteranceId) {
+            SwayMain.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("STARTING","Staring Preest");
+                    preTest.start();
+                }
+            });
+        }
+
+        @Override
+        public void onError(String utteranceId) {
+
+        }
+    };
 
     // TODO DEFINE WHAT HAPPENS IN PRETEST
     private CountDownTimer preTest = new CountDownTimer(PRETEST_DURATION,PRETEST_INTERVAL) {
@@ -286,17 +343,28 @@ public class SwayMain extends AppCompatActivity {
             (findViewById(R.id.sway_show_image)).setVisibility(View.VISIBLE);
             (findViewById(R.id.sway_show_score)).setVisibility(View.VISIBLE);
 
+            Log.e("DataCollection", ""+l.size());
+
+            FuckAtifList intArr = new FuckAtifList(666667);
+            ArrayList<Integer> intList = new ArrayList<>();
+
+            long curTime = System.currentTimeMillis();
+            for(int i = 0; i < 1000000;i++){
+                intArr.add(i,i);
+            }
+            long endTime = System.currentTimeMillis();
+            Log.e("InsertBench","Array: "+(endTime-curTime));
+
+            curTime = System.currentTimeMillis();
+            for(int i = 0; i < 1000000;i++){
+                intList.add(i);
+            }
+            endTime = System.currentTimeMillis();
+            Log.e("InsertBench","List: "+(endTime-curTime));
+
             /**
              * Adding Block of code here to get the images
              * */
-
-            /* Commenting out this area;
-            bitmapMain = getDrawing(l);
-
-            imageView.setImageBitmap(bitmapMain);
-
-            finalScore = getMetric(l);
-            */
 
             // Added the replacement using DisplayImages :: BEGIN
             DisplayImages visuals = new DisplayImages(l, measurementService.getInitialReading());
@@ -304,102 +372,21 @@ public class SwayMain extends AppCompatActivity {
             bitmapMain = visuals.getQuadrantAnalysis();
             imageView.setImageBitmap(bitmapMain);
             finalScore = visuals.getMetric();
+
+            Intent intent =  new Intent();
+            intent.putExtra(HEATMAP, bitmapMain);
+            intent.putExtra(PATHMAP, visuals.getPath());
+            intent.putExtra(FINAL_SCORE, finalScore);
+            intent.putExtra(TRIAL_NUM,trialNumber);
             // END
 
 //            sheetManager.sendData(finalScore,
-//                    new float[]{},
+//                    new float[]{1,2,3,4,5,6,7,87,9},
 //                    bitmapMain,
-//                    Sheets.TestType.HEAD_SWAY);
+//                    Info.getTestType());
         }
     };
 
-    /*
-    private Bitmap getDrawing(List<MeasurementService.DataPoint> l){
-        final int BITMAP_SIZE = 900;
-        final float ACCELERATION_LIMIT = 4.5f; //max accle before someone falls
-        final float CONSTANT = (BITMAP_SIZE/2) / ACCELERATION_LIMIT;
-
-        Path path = new Path();
-        Paint paint = new Paint();
-
-
-        paint.setAntiAlias(true);
-
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-
-        Bitmap bitmap = Bitmap.createBitmap(
-                BITMAP_SIZE,
-                BITMAP_SIZE,
-                Bitmap.Config.ARGB_8888);
-
-
-        Canvas canvas = new Canvas(bitmap);
-
-
-        canvas.drawColor(Color.LTGRAY);
-
-        paint.setStrokeWidth(15);
-        paint.setColor(Color.GREEN);
-        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.125f,paint);
-        paint.setColor(Color.YELLOW);
-        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.25f,paint);
-        paint.setColor(Color.RED);
-        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.375f,paint);
-        paint.setColor(Color.DKGRAY);
-        canvas.drawCircle(BITMAP_SIZE/2,BITMAP_SIZE/2,BITMAP_SIZE *.5f,paint);
-
-
-        paint.setColor(Color.BLACK);
-        paint.setStrokeWidth(5);
-        path.moveTo(BITMAP_SIZE/2,BITMAP_SIZE/2);
-
-        float[] translationVector = getTranslationVector(
-                measurementService.getInitialReading().getX(),
-                measurementService.getInitialReading().getY(),
-                BITMAP_SIZE,
-                BITMAP_SIZE,
-                CONSTANT);
-
-        for(MeasurementService.DataPoint p: l){
-            path.lineTo(
-                    (p.getX() * CONSTANT) + translationVector[0],
-                    (p.getY() * CONSTANT) + translationVector[1]
-            );
-        }
-
-        canvas.drawPath(path,paint);
-
-
-        return bitmap;
-    }
-    //testing transfer push
-    private float[] getTranslationVector(float centerX, float centerY,
-                                         int bitmapXLength, int bitmapYLength,
-                                         float constant){
-        return new float[]{
-                -(centerX * constant) + (bitmapXLength/2),
-                -(centerY * constant) + (bitmapYLength/2)
-        };
-    }
-
-
-    private float getMetric(List<MeasurementService.DataPoint> l){
-        float distance = 0.0f;
-        MeasurementService.DataPoint prv = measurementService.getInitialReading();
-
-        for(MeasurementService.DataPoint d : l){
-            distance += Math.sqrt(
-              Math.pow(prv.getX() - d.getX(),2) +
-              Math.pow(prv.getY() - d.getY(),2)
-            );
-            prv = d;
-        }
-
-        return distance;
-    }
-    */
     private void getPermission(){
         if (ContextCompat.checkSelfPermission(SwayMain.this,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -434,7 +421,7 @@ public class SwayMain extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         sheetManager.onRequestPermissionsResult(requestCode,permissions,grantResults);
-        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+//        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
     @Override

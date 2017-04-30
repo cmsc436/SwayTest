@@ -13,14 +13,12 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/heatmap_image"
         android:id="@+id/path_image"
         android:layout_alignParentTop="true" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/final_score_text"
         android:id="@+id/heatmap_image"
         />
 
@@ -28,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/final_score_text"
-        android:layout_above="@id/back_button"/>
+        />
 
     <Button
         android:text="Next Trial"
