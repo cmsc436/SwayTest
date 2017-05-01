@@ -25,8 +25,12 @@
         , make sure they are closed, . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one
     </string>
 
+    <!--<string name="test_instr_practice">-->
+        <!--Hello, this is the practice Balance Tests. Here Stand How ever you would like, . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one-->
+    <!--</string>-->
+
     <string name="test_instr_practice">
-        Hello, this is the practice Balance Tests. Here Stand How ever you would like, . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one
+        OM, YOU DO NOT KNOW HOW TO PLAY VIDEO GAMES
     </string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
