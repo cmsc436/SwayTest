@@ -1,21 +1,17 @@
 package cmsc436.umd.edu.sway;
 
-import android.app.Activity;
+
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.provider.MediaStore;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -31,87 +27,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
 import edu.umd.cmsc436.sheets.Sheets;
 
 public class SwayMain extends AppCompatActivity {
+    HashSet<String> RETURN_KEY_PHRASE = new HashSet<>();
+    HashSet<String> CONTINUE_KEY_PHRASE = new HashSet<>();
 
-    // TESTING PUSH
+    String[] CONT = {"GO", "Continue", "Start","Begin"};
+    String[] RET = {"BACK", "GO BACK", "RETURN"};
 
-    /**
-     *          -----------------------------------------------
-     *          ----------------- PLEASE READ -----------------
-     *          -----------------------------------------------
-     *
-     *                    **PULLING SENSOR READINGS**
-     *
-     * This is how you retrieve/pull data from sensors
-     * MUST BE DONE AFTER onStart() SO THE SERVICE CAN BIND TO THE ACTIVITY:
-     *
-     *
-     *  -> When measurementService.startReading() is called, the service will
-     *      start to record the measurements
-     *
-     *  -> measurementService.stopReading() will stop recording data, ONLY AFTER THIS
-     *      can you get a full list of the measurements
-     *
-     *  -> measurementService.getDataList() will give you a list of
-     *      x, y coordinates as well as time
-     *
-     *  -> MeasurementService class has getters for getting current readings in case
-     *      you want to utilize them in real time while the test is running
-     *
-     *  -> If you want to change the interval at which the sensor is being read
-     *      use measurementService.setSensorDelay(int), this will re-register
-     *      the sensors with changed time. (DEFAULT IS 5 ms)
-     *
-     *
-     *
-     *                    **SENSOR DATA REPRESENTATION: DataPoint**
-     *
-     *  The Sensor Data is represented as a DataPoint object, this is a simple object
-     *  that contains gravity in x and y(phone's z) and time adjusted by
-     *  the initial resting position. This is just to make the the code a bit simplified,
-     *  since sensor readings are represented as floats and time as,
-     *  having one object to work with may make things easier
-     *
-     *
-     *
-     *                    **NOTES ABOUT WHAT I ADDED**
-     *
-     *  -> ServiceConnection is there to establish and terminate
-     *      the binding with Measurement Service
-     *
-     *  -> CountDownTimers, this is just to show how to the Service mechanisms work
-     *      -> The *_DURATION and *_INTERVAL are there because the Doc mentioned that
-     *          the would like to modify the durations of the test remotely
-     *          we will have to work with the Front Interface team on how exactly it will be done
-     *      -> The PRE-test is there because they said it may be ok let the patient wait in the
-     *          test patient for a bit before starting to record the reading
-     *
-     *
-     *
-     *                                  TODO
-     *              -> Get the metric and heat map working
-     *                  (maybe display results for now, until we
-     *                  hook up our app to the main Interface)
-     *
-     *              -> Figure out how the test will start and end with
-     *                  voice or buttons, what ever works for Monday's demo.
-     *                  We don't need to worry about trials and test types,
-     *                  the Front Interface team will take care of that
-     *              -> Have a flow for that a patient can test through,
-     *                  maybe a simple UI to work with?
-     *
-     *              -> Send Data to Google Sheets (I can take care of that Sunday night)
-     *
-     *              -> Get the app the a Demo quality
-     */
 
     // total test time = TEST_DURATION + PRETEST_DURATION
     private final int TEST_DURATION = 10000; // how long the test will last (in milliseconds)
@@ -128,6 +59,7 @@ public class SwayMain extends AppCompatActivity {
     final static String FINAL_SCORE = "FINAL_SCORE";
     final static String TRIAL_NUM = "TRIAL_COUNT";
     final static String TEST_TYPE = "TEST_TPE";
+    final static String USER_ID = "USER_ID";
 
     // service to access all of the data
     MeasurementService measurementService;
@@ -138,8 +70,11 @@ public class SwayMain extends AppCompatActivity {
 
     //Text to Speech
     TextToSpeech tts;
+
     //Speech Recognition
     SpeechRecognizer speechRecognizer;
+    Intent speechRecogIntent;
+    boolean isListening;
 
     TextView textView;
     ImageView imageView;
@@ -160,6 +95,9 @@ public class SwayMain extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
+
+        Collections.addAll(RETURN_KEY_PHRASE, RET);
+        Collections.addAll(CONTINUE_KEY_PHRASE,CONT);
 
         sheetManager = new SheetManager(this); // takes care of sending the data to oGoogle Sheets
 
@@ -183,13 +121,15 @@ public class SwayMain extends AppCompatActivity {
                 Info.getTestType() : (Sheets.TestType) getIntent().getSerializableExtra(TEST_TYPE);
 
 //        // TODO REMOVE LATER ONLY FOR DEBUGGING
-//        if(currentTest == null) currentTest = Sheets.TestType.SWAY_OPEN_APART;
+        if(currentTest == null) currentTest = null;
 
 
         trialNumber = getIntent().getIntExtra(TRIAL_NUM,0); // trials to repeat
 
         // will take care of taking in vocal input
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecogIntent = getSpeechReconitionIntent();
+        speechRecognizer.setRecognitionListener(new SpeechRecognitionListener());
     }
 
     // binding the service to the activity
@@ -209,6 +149,7 @@ public class SwayMain extends AppCompatActivity {
         super.onDestroy();
         if(isServiceBound) unbindService(serviceConnection);
         tts.shutdown();
+        if(speechRecognizer != null) speechRecognizer.destroy();
     }
 
     // starting the test
@@ -238,16 +179,11 @@ public class SwayMain extends AppCompatActivity {
 
     // Handles Intro Speech depending on the Test Type
     private void speakText(Sheets.TestType t){
-        switch (t){
-            case SWAY_OPEN_APART:
-                tts.speak(getString(R.string.test_instr_1),TextToSpeech.QUEUE_ADD,ttsParams,"1");
-            case SWAY_OPEN_TOGETHER:
-                tts.speak(getString(R.string.test_instr_2),TextToSpeech.QUEUE_ADD,ttsParams,"1");
-            case SWAY_CLOSED:
-                tts.speak(getString(R.string.test_instr_3),TextToSpeech.QUEUE_ADD,ttsParams,"1");
-            default:
-                tts.speak(getString(R.string.test_instr_practice),TextToSpeech.QUEUE_ADD,ttsParams,"1");
-        }
+        if(t == null)  tts.speak(getString(R.string.test_instr_practice),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+        else if( t == Sheets.TestType.SWAY_OPEN_APART) tts.speak(getString(R.string.test_instr_1),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+        else if(t == Sheets.TestType.SWAY_OPEN_TOGETHER) tts.speak(getString(R.string.test_instr_2),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+        else if(t == Sheets.TestType.SWAY_CLOSED) tts.speak(getString(R.string.test_instr_3),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+
 
     }
 
@@ -286,9 +222,16 @@ public class SwayMain extends AppCompatActivity {
     private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
         @Override
         public void onStart(String utteranceId) {
-
+            SwayMain.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("Speech", "STARTED SPEECH RECOG");
+                    speechRecognizer.startListening(speechRecogIntent);
+                }
+            });
         }
 
+        // TODO REMOVE PRESTART WHEN SPEECH IS IMPLEMENTED
         @Override
         public void onDone(String utteranceId) {
             SwayMain.this.runOnUiThread(new Runnable() {
@@ -345,23 +288,6 @@ public class SwayMain extends AppCompatActivity {
 
             Log.e("DataCollection", ""+l.size());
 
-            FuckAtifList intArr = new FuckAtifList(666667);
-            ArrayList<Integer> intList = new ArrayList<>();
-
-            long curTime = System.currentTimeMillis();
-            for(int i = 0; i < 1000000;i++){
-                intArr.add(i,i);
-            }
-            long endTime = System.currentTimeMillis();
-            Log.e("InsertBench","Array: "+(endTime-curTime));
-
-            curTime = System.currentTimeMillis();
-            for(int i = 0; i < 1000000;i++){
-                intList.add(i);
-            }
-            endTime = System.currentTimeMillis();
-            Log.e("InsertBench","List: "+(endTime-curTime));
-
             /**
              * Adding Block of code here to get the images
              * */
@@ -414,6 +340,32 @@ public class SwayMain extends AppCompatActivity {
             }
 
         }
+        if(ContextCompat.checkSelfPermission(SwayMain.this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED){
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(SwayMain.this,
+                    Manifest.permission.RECORD_AUDIO)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(SwayMain.this,
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+
+
     }
 
 
@@ -441,4 +393,91 @@ public class SwayMain extends AppCompatActivity {
         this.recreate();
     }
 
+    // sets up the intent used by the Speech Recognition
+    private Intent getSpeechReconitionIntent(){
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
+                Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
+                this.getPackageName());
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
+
+        return intent;
+    }
+
+    //Cross references speech recognized with key phrases
+
+    private int interprateSpeech(ArrayList<String> speechList){
+        for(String s:speechList){
+            if(RETURN_KEY_PHRASE.contains(s)) return 1;
+            if(CONTINUE_KEY_PHRASE.contains(s)) return 0;
+        }
+        return -1;
+    }
+
+    // to restart listening
+    private void restartSpeech(){
+        speechRecognizer.stopListening();
+        speechRecognizer.startListening(speechRecogIntent);
+    }
+
+    protected class SpeechRecognitionListener implements RecognitionListener {
+
+        @Override
+        public void onBeginningOfSpeech() {
+            Log.d("SPEECH", "onBeginingOfSpeech");
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer) {
+
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            Log.d("SPEECH", "onEndOfSpeech");
+        }
+
+        @Override
+        public void onError(int error) {
+            speechRecognizer.startListening(speechRecogIntent);
+
+            //Log.d(TAG, "error = " + error);
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params) {
+
+        }
+
+        @Override
+        public void onPartialResults(Bundle partialResults) {
+
+        }
+
+        @Override
+        public void onReadyForSpeech(Bundle params) {
+            Log.d("SPEECH", "onReadyForSpeech"); //$NON-NLS-1$
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            //Log.d(TAG, "onResults"); //$NON-NLS-1$
+            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            // matches are the return values of speech recognition engine
+            // Use these values for whatever you wish to do
+            Log.e("SPEECH", Arrays.toString(matches.toArray()));
+            int result = interprateSpeech(matches);
+
+            if(result == 1) setResult(RESULT_CANCELED);
+            if(result == 0) preTest.start();
+            else restartSpeech();
+        }
+
+        @Override
+        public void onRmsChanged(float rmsdB) {
+        }
+    }
 }
