@@ -17,7 +17,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static edu.umd.cmsc436.frontendhelper.TrialMode.getAppendage;
+import edu.umd.cmsc436.sheets.Sheets;
 
 public class FragmentPagerSupport extends AppCompatActivity {
     static final String ACTION_HELP = "edu.umd.cmsc436.balance.action.HELP";
@@ -38,7 +38,8 @@ public class FragmentPagerSupport extends AppCompatActivity {
 
         Intent intent = getIntent();
         //String action = intent.getAction();
-        String action = "edu.umd.cmsc436.balance.action.HELP";
+        //String action = "edu.umd.cmsc436.balance.action.HELP";
+        String action = "edu.umd.cmsc436.balance.action.TRIAL";
         switch(action) {
             case ACTION_HELP:
                 addFragments();
@@ -49,7 +50,9 @@ public class FragmentPagerSupport extends AppCompatActivity {
                 startActivity(newIntent);
                 break;
             case ACTION_TRIAL:
-                switch (getAppendage(intent)) {
+                //Sheets.TestType testType = getAppendage(intent);
+                Sheets.TestType testType = Sheets.TestType.SWAY_OPEN_APART;
+                switch (testType) {
                     case SWAY_OPEN_APART:
                         mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_1));
                         break;
