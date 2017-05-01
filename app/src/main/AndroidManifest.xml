@@ -40,7 +40,8 @@
             android:exported="true" />
 
         <activity android:name=".InstructionActivity" />
-        <activity android:name=".DisplayResult"></activity>
+        <activity android:name=".DisplayResult" />
+        <activity android:name=".FragmentPagerSupport"></activity>
     </application>
 
 </manifest>

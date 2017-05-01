@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-
+    private static final String ACTION_HELP = "edu.umd.cmsc436.balance.action.HELP";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +25,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void start_sway(View view) {
-        Intent start_intent = new Intent(this, Sub1.class);
+        //Intent start_intent = new Intent(this, Sub1.class);
+        Intent start_intent = new Intent(this, FragmentPagerSupport.class);
+        start_intent.setAction(ACTION_HELP);
         startActivity(start_intent);
     }
 }

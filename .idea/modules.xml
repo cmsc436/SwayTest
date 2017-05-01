@@ -5,7 +5,9 @@
       <module fileurl="file://$PROJECT_DIR$/SwayTest.iml" filepath="$PROJECT_DIR$/SwayTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/frontendhelper-0.2/frontendhelper-0.2.iml" filepath="$PROJECT_DIR$/frontendhelper-0.2/frontendhelper-0.2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/frontendhelper-0.2/frontendhelper-0.2.iml" filepath="$PROJECT_DIR$/frontendhelper-0.2/frontendhelper-0.2.iml" />
       <module fileurl="file://$PROJECT_DIR$/sheets436-0.0.4/sheets436-0.0.4.iml" filepath="$PROJECT_DIR$/sheets436-0.0.4/sheets436-0.0.4.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sheets436-0.0.5/sheets436-0.0.5.iml" filepath="$PROJECT_DIR$/sheets436-0.0.5/sheets436-0.0.5.iml" />
     </modules>
   </component>
 </project>

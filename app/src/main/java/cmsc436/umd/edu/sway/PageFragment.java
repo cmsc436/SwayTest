@@ -14,7 +14,7 @@ import android.widget.TextView;
  * A simple {@link Fragment} subclass.
  */
 public class PageFragment extends android.support.v4.app.Fragment {
-        TextView textView;
+    TextView textView;
 
 
     public PageFragment() {
@@ -33,13 +33,16 @@ public class PageFragment extends android.support.v4.app.Fragment {
         String msg = Integer.toString(bundle.getInt("count"));
         switch(msg){
             case "1":
-                 message = "\t\t\t\t\t\t\t\tTEST 1 \nInstructions: Please have legs opened \nand aligned with your shoulders.";
+                message = "\t\t\t\t\t\t\t\t \n\t Please swipe through the instructions for \teach test";
                 break;
             case "2":
-                message = "\t\t\t\t\t\t\t\tTEST 2 \nInstructions: Please have your legs closed \nand eyes opened";
+                message = "\t\t\t\t\tTEST 1 \n\n Please have legs opened \nand aligned with your shoulders";
                 break;
             case "3":
-                message = "                TEST 3 \nInstructions: Please have your legs closed \nand eyes closed";
+                message = "\t\t\t\t\tTEST 2 \n\n Please have your legs closed \nand eyes opened";
+                break;
+            case "4":
+                message = "\t\t\t\t\tTEST 3 \n\n Please have your legs closed \nand eyes closed";
                 break;
             default:
 //                message = "This is the end of the SWAY TEST";
@@ -48,7 +51,7 @@ public class PageFragment extends android.support.v4.app.Fragment {
         }
 
 
-        textView.setText(message+" .");
+        textView.setText(message);
 
         return view;
     }

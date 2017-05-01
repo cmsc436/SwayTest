@@ -32,12 +32,46 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <!-- TODO: Remove or change this placeholder text -->
+    <!--Help mode should display instructions or a guide to using the specific test, and then switch to Practice mode.-->
     <string name="instruction_overview">
-        The Sway Test will consist of three different tests. Swipe left to view the instructions for each test, or if you already know how these tests work, press "Skip" to skip the instructions.
+        Welcome to the user instruction guide for the Sway Test.
+        The Sway Test will consist of three different tests.
+        Swipe left to view the instructions for each (specific) test.
+        After viewing the instructions, the app will switch to Practice mode.
+        Practice mode will allow you to practice the Sway Test as long as you want before exiting.
     </string>
     <string name="instruction_title">Instructions</string>
 
+    <string name="ins_intro">\t\t\t\t\t\t\t\t \n\t Please swipe through the instructions for \teach test</string>
+    <string name="text_1">\t\t\t\t\t\t\t\t \n\t TEST 1\n\t Please have legs opened and aligned with your shoulders</string>
+    <string name="test_instr_text_2">\t\t\t\t\tTEST 2 \n\n Please have your legs closed \nand eyes opened</string>
+    <string name="test_instr_text_3">\t\t\t\t\tTEST 3 \n\n Please have your legs closed and eyes closed</string>
 
-    <!--<string name="app_name">Sway2</string>-->
+    <string name="ins_1">\t\t\t\t\t\t\t\t \n\t TEST 1\n\t Please have legs opened and aligned with your shoulders</string>
+    <string name="ins_2">\t\t\t\t\tTEST 2 \n\n Please have your legs closed \nand eyes opened</string>
+    <string name="ins_3">\t\t\t\t\tTEST 3 \n\n Please have your legs closed and eyes closed</string>
+
     <string name="text_with_paras">Instructions: You need to have eyes closed and\n legs opened</string>
+
+    <string-array name="test_instr_text_1">
+        <item>Test 1</item>
+        <item>Please stand with your legs opened and aligned with your shoulders. Keep your eyes opened. </item>
+    </string-array>
+
+    <string-array name="test_instr_text_2">
+        <item>Test 2</item>
+        <item>Please stand with your legs closed and your eyes opened.</item>
+    </string-array>
+
+    <string-array name="test_instr_text_3">
+        <item>Test 3</item>
+        <item>Please stand with your legs closed and your eyes closed.</item>
+    </string-array>
+
+    <string-array name="practice_text">
+        <item>Practice</item>
+        <item>Click the \"Start\" button to start <b>Practice Mode</b>.
+            Practice mode will allow you to practice the Sway Test
+            as long as you wish to before exiting.</item>
+    </string-array>
 </resources>

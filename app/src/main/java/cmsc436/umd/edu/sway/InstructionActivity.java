@@ -1,7 +1,7 @@
 package cmsc436.umd.edu.sway;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 public class InstructionActivity extends AppCompatActivity {
 
