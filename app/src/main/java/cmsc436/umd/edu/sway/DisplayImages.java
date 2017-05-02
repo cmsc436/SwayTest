@@ -309,7 +309,6 @@ public class DisplayImages {
         // TESTING000
 
         for (MeasurementService.DataPoint p : list) {
-            // quadrantsCounts[(int)((p.getX()*CONSTANT)+transXY[0])/sizeOfQuadrants][(int)((p.getY()*CONSTANT)+transXY[1])/sizeOfQuadrants]+=1;
             int transX = (int)((p.getX()*CONSTANT)+ transXY[0]);
             int transY = (int)((p.getY()*CONSTANT)+ transXY[1]);
 
@@ -361,41 +360,6 @@ public class DisplayImages {
 
         return null;
     }
-
-//        // Determines how to split the regions
-//    private int[] calculateJenksNaturalBreaksClasses(int[][] counts){
-//        // Get the set of elements from counts
-//        int[] classes = new int[5];
-//        List<Integer> values = new ArrayList<Integer>();
-//        for(int i = 0 ; i < counts.length; i++){
-//            for(int j = 0; j < counts[i].length; j++){
-//                values.add(counts[i][j]);
-//            }
-//        }
-//        //Sort the elements, get the set
-//        Collections.sort(values);
-//        HashSet<Integer> set = new HashSet<>(values);
-//        values  = new ArrayList<>(set);
-//        // Calculate diff, add diff to array diff
-//        List<Integer> diff = new ArrayList<>();
-//        for(int i = 0; i < values.size()-1;i++){
-//            diff.add(Math.abs(values.get(i)-values.get(i+1)));
-//        }
-//        Collections.sort(diff);
-//        Collections.reverse(diff);
-//
-//        // Get the 5 largest values
-//        for(int i = 0; i < 5; i++){
-//            try {
-//                classes[i] = diff.get(i);
-//                Log.e("Largest "+ i+" ",""+diff.get(i));
-//            }catch (Exception e){
-//                classes[i] = 0;
-//            }
-//
-//            }
-//        return classes;
-//    }
 
 
 }

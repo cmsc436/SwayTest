@@ -4,18 +4,18 @@ package cmsc436.umd.edu.sway;
  * A Tribute to efficient and simple structure for holding data
  */
 
-public class FuckAtifList {
+public class CoordinateList {
     private float x[];
     private float y[];
     private int size;
     private int maxSize = -1;
 
-    public FuckAtifList(int sz){
+    public CoordinateList(int sz){
         maxSize = sz;
         init(maxSize);
     }
 
-    public FuckAtifList(FuckAtifList ls ){
+    public CoordinateList(CoordinateList ls ){
         maxSize = (int) (ls.getMaxSize() * 1.5);
         init(maxSize);
         System.arraycopy(ls.getXArray(),0,this.x,0,ls.getSize());
