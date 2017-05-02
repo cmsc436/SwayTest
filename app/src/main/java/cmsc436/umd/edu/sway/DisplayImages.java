@@ -68,6 +68,7 @@ public class DisplayImages {
     }
 
     public Bitmap getQuadrantAnalysis(){
+        Log.e("LIST ANALYSIS", ""+list.size());
         // Create bitmap to save image
         Bitmap bitmap = Bitmap.createBitmap(BITMAP_SIZE,BITMAP_SIZE, Bitmap.Config.ARGB_8888);
         // Define the paint
@@ -229,6 +230,71 @@ public class DisplayImages {
         }
 
         return distance;
+    }
+
+    public float getAverageBetweenPoint(){
+       return getMetric()/list.size();
+    }
+
+    public float getVarianceBetweenPoint(float avg){
+        float sum = 0;
+        float average = avg;
+        MeasurementService.DataPoint prv = center;
+        float temp;
+
+        for(int i = 0; i < list.size(); i++){
+            temp = getDist(prv,list.get(i));
+            sum+=Math.pow(temp - average, 2);
+            prv = list.get(i);
+        }
+        return sum/list.size();
+    }
+
+    public float getStdDevBetweenPoint(float var){
+        return (float) Math.sqrt(var);
+    }
+
+    public float getStdDevBetweenPoint(){
+        return (float) getStdDevBetweenPoint(getVarianceFromCenter());
+    }
+
+    public float getAverageFromCenter(){
+        float sum = 0;
+        for(int i = 0; i< list.size(); i++){
+            sum+= getDist(center,list.get(i));
+        }
+        return sum/list.size();
+    }
+
+    public float getVarianceFromCenter(){
+        float average = getAverageFromCenter();
+        return getVarianceFromCenter(average);
+    }
+
+    public float getVarianceFromCenter(float avg){
+        float sum = 0;
+        float average = avg;
+        double temp;
+        for(int i = 0; i < list.size(); i++){
+             temp = getDist(center,list.get(i));
+            sum+= Math.pow(temp - average,2);
+        }
+        return sum/list.size();
+    }
+
+    public float getStdDevFromCenter(float var){
+        return (float) Math.sqrt(var);
+    }
+
+    public float getStdDevFromCenter(){
+        return getStdDevFromCenter(getVarianceFromCenter());
+    }
+
+    private float getDist(MeasurementService.DataPoint a, MeasurementService.DataPoint b){
+        return (float) Math.sqrt(
+                Math.pow(a.getX() - b.getX(),2)+
+                        Math.pow(a.getY() - b.getY(),2)
+        );
     }
 
     // Iterate the list of XY points and determine its quadrant

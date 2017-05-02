@@ -12,26 +12,26 @@
 
     <string name="test_instr_1">
        Hello, This is the First Test of the Sway Tests. In this test I will need you to spread you legs the shoulder width,
-        and strapped to your waist. . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one
+        and strapped to your waist. \n double tap with two fingers on the screen to start the test
     </string>
 
     <string name="test_instr_2">
         Hello, this is the second of the Balance Tests. In this test I will need you keep your legs closed, so that they are touching each other, keep your eyes open
-        . . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one
+        \n double tap with two fingers on the screen to start the test
     </string>
 
     <string name="test_instr_3">
         Hello, this is the third of the Balance Tests. In this test I will need you keep your legs closed, so that they are touching each other, keep your eyes closed
-        , make sure they are closed, . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one
+        , make sure they are closed \n double tap with two fingers on the screen to start the test
     </string>
-
-    <!--<string name="test_instr_practice">-->
-        <!--Hello, this is the practice Balance Tests. Here Stand How ever you would like, . . . . Now We can start the test in five. . . . four. . . . three. . . . two. . . . one-->
-    <!--</string>-->
 
     <string name="test_instr_practice">
-        OM, YOU DO NOT KNOW HOW TO PLAY VIDEO GAMES
+        Hello, this is the practice Balance Tests. Please Stand However you would like.\n double tap with two fingers on the screen to start the test
     </string>
+
+    <string name="countdown">Now We can start the test in five. . . . four. . . . three. . . . two. . . . one</string>
+
+
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 

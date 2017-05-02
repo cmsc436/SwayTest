@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -39,13 +40,13 @@ public class SheetManager implements Sheets.Host {
     }
 
 
-    public void sendData(float distance, float[] rawData, Bitmap bitmap, Sheets.TestType testType){
-        sheets.writeData(testType,Info.USER_ID,distance);
+    public void sendData(float[] rawData, Bitmap heatmap, Bitmap pathmap,Sheets.TestType testType){
         sheets.writeTrials(testType,Info.USER_ID,rawData);
+        String title = Info.getPicturePrefix(false) +(new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
+        sheets.uploadToDrive(Info.FOLDER_ID,title,heatmap);
 
-        String title = Info.getPicturePrefix(true) +(new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
-
-//        sheets.uploadToDrive(Info.FOLDER_ID,title,bitmap);
+        title = Info.getPicturePrefix(true) +(new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
+        sheets.uploadToDrive(Info.FOLDER_ID,title,pathmap);
     }
 
     
@@ -56,7 +57,10 @@ public class SheetManager implements Sheets.Host {
 
     @Override
     public void notifyFinished(Exception e) {
-        Toast.makeText(activity,e.toString(),Toast.LENGTH_LONG).show();
+        if(e!=null){
+            Toast.makeText(activity,e.toString(),Toast.LENGTH_LONG).show();
+            Log.e("SHEETS-API",e.toString());
+        }
 
     }
 }

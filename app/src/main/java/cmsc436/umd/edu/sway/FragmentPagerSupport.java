@@ -8,21 +8,29 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.umd.cmsc436.frontendhelper.TrialMode;
 import edu.umd.cmsc436.sheets.Sheets;
 
+// Sorry Lauren, I know this is your precious code
+// but I need to add some stuff to it :]
+// ~Sam
+// P.S I Promise to Comment
 public class FragmentPagerSupport extends AppCompatActivity {
     static final String ACTION_HELP = "edu.umd.cmsc436.balance.action.HELP";
     static final String ACTION_PRACTICE = "edu.umd.cmsc436.balance.action.PRACTICE";
     static final String ACTION_TRIAL = "edu.umd.cmsc436.balance.action.TRIAL";
+    static final String ACTION_HISTORY = "edu.umd.cmsc436.balance.action.HISTORY";  // new addition to front end
 
     MyAdapter mAdapter;
     ViewPager mPager;
@@ -37,9 +45,9 @@ public class FragmentPagerSupport extends AppCompatActivity {
         mPager.setAdapter(mAdapter);
 
         Intent intent = getIntent();
-        //String action = intent.getAction();
+        String action = intent.getAction();
         //String action = "edu.umd.cmsc436.balance.action.HELP";
-        String action = "edu.umd.cmsc436.balance.action.TRIAL";
+//        String action = "edu.umd.cmsc436.balance.action.TRIAL";
         switch(action) {
             case ACTION_HELP:
                 addFragments();
@@ -50,11 +58,13 @@ public class FragmentPagerSupport extends AppCompatActivity {
                 startActivity(newIntent);
                 break;
             case ACTION_TRIAL:
-                //Sheets.TestType testType = getAppendage(intent);
-                Sheets.TestType testType = Sheets.TestType.SWAY_OPEN_APART;
+                Sheets.TestType testType = TrialMode.getAppendage(intent);
+                Log.e("INSTR", "TEST_TYPE: "+testType.name());
+//                Sheets.TestType testType = Sheets.TestType.SWAY_OPEN_APART;
                 switch (testType) {
                     case SWAY_OPEN_APART:
                         mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_1));
+
                         break;
                     case SWAY_OPEN_TOGETHER:
                         mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_2));
@@ -66,7 +76,19 @@ public class FragmentPagerSupport extends AppCompatActivity {
                         break;
                 }
                 break;
+            case ACTION_HISTORY:
+
+                break;
+
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e("ACTIVITY_RESULT","AC CALLED: "+data.getFloatExtra(TrialMode.KEY_SCORE,-1));
+
+        setResult(resultCode,data);
+        finish();
     }
 
     private void addFragments() {
@@ -161,7 +183,7 @@ public class FragmentPagerSupport extends AppCompatActivity {
                     // START SWAY TEST ACTIVITY HERE
                     Intent intent = new Intent(getActivity(), SwayMain.class);
                     intent.putExtras(getActivity().getIntent());
-                    startActivity(intent);
+                    startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT);
                 }
             });
 

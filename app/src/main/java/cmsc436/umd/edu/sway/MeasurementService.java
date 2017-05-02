@@ -238,6 +238,13 @@ public class MeasurementService extends Service {
         return null;
     }
 
+    public void restartReading(){
+        startReading = false;
+        readingStopped = false;
+        concurrentDataList = Collections.synchronizedList(new ArrayList<DataPoint>());
+        initialReading = null;
+    }
+
     // binding
     public class LocalBinder extends Binder{
         public MeasurementService getService(){

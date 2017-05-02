@@ -7,8 +7,8 @@ android {
         applicationId "cmsc436.umd.edu.sway"
         minSdkVersion 22
         targetSdkVersion 25
-        versionCode 1
-        versionName "0.1"
+        versionCode 3
+        versionName "0.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -25,6 +25,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //Sheets API Dependencies
+    compile 'com.google.android.gms:play-services-auth:10.2.1'
     compile('com.google.api-client:google-api-client-android:1.22.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.code.findbugs'
@@ -33,11 +34,15 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude group: 'com.google.code.findbugs'
     }
-    compile project(':frontendhelper-0.2')
-    compile project(':sheets436-0.0.5')
+    compile 'com.google.android.gms:play-services-drive:10.2.1'
+    compile('com.google.apis:google-api-services-drive:v3-rev69-1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.google.code.findbugs'
+    }
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-auth:10.2.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:support-v4:25.3.1'
     testCompile 'junit:junit:4.12'
+    compile project(':frontendhelper-0.2')
+    compile project(':sheets436-0.0.5')
 }

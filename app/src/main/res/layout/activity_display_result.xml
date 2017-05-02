@@ -11,30 +11,66 @@
     tools:context="cmsc436.umd.edu.sway.DisplayResult">
 
     <ImageView
+        android:id="@+id/sway_result_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/path_image"
-        android:layout_alignParentTop="true" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/heatmap_image"
-        />
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/sway_result_linear_layout"
+        android:visibility="invisible"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/final_score_text"
-        />
-
-    <Button
-        android:text="Next Trial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="27dp"
-        android:id="@+id/back_button"
+        android:layout_centerVertical="true"
+        android:textSize="36sp"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:orientation="vertical"
+        android:id="@+id/sway_result_linear_layout">
+
+        <RadioGroup
+            android:id="@+id/sway_display_result_radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Heat Map"
+                android:id="@+id/sway_result_heat_map"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Path Map"
+                android:id="@+id/sway_result_path_map"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Final Score"
+                android:id="@+id/sway_result_final_score"/>
+        </RadioGroup>
+        <Button
+            android:text="Next Trial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/back_button"/>
+
+    </LinearLayout>
+    <!--<Button-->
+        <!--android:text="Next Trial"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="27dp"-->
+        <!--android:id="@+id/back_button"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true" />-->
 
 </RelativeLayout>
