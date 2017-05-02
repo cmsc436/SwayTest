@@ -49,7 +49,7 @@ public class Info {
             case SWAY_OPEN_TOGETHER: return 2.0f;
             case SWAY_CLOSED:return 3.0f;
         }
-        return -1f;
+        return -1;
     }
 
     public static void setUserId(String id){

@@ -241,7 +241,6 @@ public class SwayMain extends AppCompatActivity {
 
     // Handles Intro Speech depending on the Test Type
     private void speakText(Sheets.TestType t){
-        Log.e("TEST_STAGE", "IN SPEAKTEST: "+ t.toId());
         if (!isTrial)
             tts.speak(getString(R.string.test_instr_practice), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
         else if (t == Sheets.TestType.SWAY_OPEN_APART)
