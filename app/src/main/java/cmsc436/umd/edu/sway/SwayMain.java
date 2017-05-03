@@ -217,11 +217,13 @@ public class SwayMain extends AppCompatActivity {
     public void onBackPressed() {
         Log.d(MD,"-------------------onBackPressed");
         if(!isDone) {
+            duringTest.cancel();
             Intent i = new Intent();
             i.putExtra(TrialMode.KEY_SCORE,finalScore);
             setResult(RESULT_CANCELED,i);
             finish();
         }
+        super.onBackPressed();
     }
 
     @Override
@@ -548,6 +550,7 @@ public class SwayMain extends AppCompatActivity {
         @Override
         public void onTwoFingerDoubleTap() {
             // Do what you want here, I used a Toast for demonstration
+            if(speechRecognizer != null) speechRecognizer.destroy();
             tts.stop();
             tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
             Log.e("TOUCH","2");
