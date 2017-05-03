@@ -100,7 +100,9 @@ public class DisplayResult extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_CANCELED,new Intent());
+        Intent i = new Intent();
+        i.putExtra(TrialMode.KEY_SCORE,final_score);
+        setResult(RESULT_OK,i);
         finish();
     }
 
