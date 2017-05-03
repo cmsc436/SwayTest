@@ -279,7 +279,7 @@ public class SwayMain extends AppCompatActivity {
                     Log.e("TTS", "This Language is not supported");
                     textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
                 }else{
-                    speakText(currentTest);
+//                    speakText(currentTest);
                 }
 
             }else {
@@ -423,7 +423,7 @@ public class SwayMain extends AppCompatActivity {
         Log.d(MD,"getSpeechRecognitionIntent");
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,
                 Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
@@ -461,7 +461,7 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onBufferReceived(byte[] buffer) {
-            Log.d(MD+LN,"SpeechRecognitionListener - onBufferReceived");
+//            Log.d(MD+LN,"SpeechRecognitionListener - onBufferReceived");
         }
 
         @Override
@@ -471,7 +471,7 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onError(int error) {
-            Log.d(MD+LN,"SpeechRecognitionListener - onError");
+//            Log.d(MD+LN,"SpeechRecognitionListener - onError   "+ error);
             speechRecognizer.startListening(speechRecogIntent);
 
             //Log.d(TAG, "error = " + error);
@@ -479,17 +479,17 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onEvent(int eventType, Bundle params) {
-            Log.d(MD+LN,"SpeechRecognitionListener - onEvent");
+//            Log.d(MD+LN,"SpeechRecognitionListener - onEvent");
         }
 
         @Override
         public void onPartialResults(Bundle partialResults) {
-            Log.d(MD+LN,"SpeechRecognitionListener - onPartialResults");
+//            Log.d(MD+LN,"SpeechRecognitionListener - onPartialResults");
         }
 
         @Override
         public void onReadyForSpeech(Bundle params) {
-            Log.d(MD+LN,"SpeechRecognitionListener - onReadyForSpeech");
+//            Log.d(MD+LN,"SpeechRecognitionListener - onReadyForSpeech");
         }
 
         @Override
@@ -498,8 +498,10 @@ public class SwayMain extends AppCompatActivity {
             ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             // matches are the return values of speech recognition engine
             // Use these values for whatever you wish to do
-            Log.e("SPEECH", Arrays.toString(matches.toArray()));
+
             int result = interpretSpeech(matches);
+            Log.e("SPEECH", Arrays.toString(matches.toArray()) + "\n\t\t\tRESULT: "+result);
+            textView.setText(Arrays.toString(matches.toArray()));
 
             if(result == 1) setResult(RESULT_CANCELED);
             if(result == 0) preTest.start();
@@ -508,7 +510,7 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onRmsChanged(float rmsdB) {
-            Log.d(MD+LN,"SpeechRecognitionListener - onReadyForSpeech");
+//            Log.d(MD+LN,"SpeechRecognitionListener - onRmsChanged");
         }
     }
 
