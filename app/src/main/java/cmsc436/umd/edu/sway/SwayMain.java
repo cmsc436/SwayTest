@@ -105,8 +105,8 @@ public class SwayMain extends AppCompatActivity {
     // key Phrases
     HashSet<String> RETURN_KEY_PHRASE = new HashSet<>();
     HashSet<String> CONTINUE_KEY_PHRASE = new HashSet<>();
-    String[] CONT = {"GO", "Continue", "Start","Begin"};
-    String[] RET = {"BACK", "GO BACK", "RETURN"};
+    String[] CONT = {"go", "continue", "start","begin"};
+    String[] RET = {"back", "go back", "return"};
 
     /*************** TEXT TO SPEECH ***************/
     TextToSpeech tts; //Text to Speech Main Object
@@ -237,7 +237,6 @@ public class SwayMain extends AppCompatActivity {
         Log.d(MD,"initializeTestingProcedure");
         tts.stop();
         textView.setText("Test Starting");
-        speechRecognizer.startListening(speechRecogIntent);
     }
 
 
@@ -292,7 +291,7 @@ public class SwayMain extends AppCompatActivity {
                     Log.e("TTS", "This Language is not supported");
                     textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
                 }else{
-//                    speakText(currentTest);
+                    speakText(currentTest);
                 }
 
             }else {
@@ -321,7 +320,14 @@ public class SwayMain extends AppCompatActivity {
         @Override
         public void onDone(String utteranceId) {
             Log.d(MD+LN,"UtteranceProgressListener - onDone");
-            if(utteranceId.equals("2")) {
+            if(utteranceId.equals("1")){
+                SwayMain.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        speechRecognizer.startListening(speechRecogIntent);
+                    }
+                });            }
+            else if(utteranceId.equals("2")) {
                 SwayMain.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -441,6 +447,7 @@ public class SwayMain extends AppCompatActivity {
                 Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
                 this.getPackageName());
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,50000);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
 
         return intent;
@@ -515,9 +522,12 @@ public class SwayMain extends AppCompatActivity {
             int result = interpretSpeech(matches);
             Log.e("SPEECH", Arrays.toString(matches.toArray()) + "\n\t\t\tRESULT: "+result);
             textView.setText(Arrays.toString(matches.toArray()));
-
-            if(result == 1) setResult(RESULT_CANCELED);
-            if(result == 0) preTest.start();
+            //TODO ADD GOING BACK TO VR
+//            if(result == 1) setResult(RESULT_CANCELED);
+            if(result == 0){
+                speechRecognizer.destroy();
+                tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
+            }
             else restartSpeech();
         }
 
