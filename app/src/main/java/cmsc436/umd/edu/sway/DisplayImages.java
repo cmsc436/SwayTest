@@ -24,6 +24,11 @@ import java.util.Set;
  *  - Must create buckets which contains the counts of repeated quadrant counts:
  *      - # of buckets = # of shades
  *
+ *
+ * - Average
+ *
+ *
+ *
  */
 
 public class DisplayImages {
@@ -146,7 +151,7 @@ public class DisplayImages {
 //        for (MeasurementService.DataPoint p: list) {
 //            paint.setColor(Color.RED);
 //            paint.setStyle(Paint.Style.FILL);
-//            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],2.5f,paint);
+//            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],2.0f,paint);
 //        }
 
 
@@ -232,6 +237,7 @@ public class DisplayImages {
         return distance;
     }
 
+    // Average point between points
     public float getAverageBetweenPoint(){
        return getMetric()/list.size();
     }
@@ -309,7 +315,6 @@ public class DisplayImages {
         // TESTING000
 
         for (MeasurementService.DataPoint p : list) {
-            // quadrantsCounts[(int)((p.getX()*CONSTANT)+transXY[0])/sizeOfQuadrants][(int)((p.getY()*CONSTANT)+transXY[1])/sizeOfQuadrants]+=1;
             int transX = (int)((p.getX()*CONSTANT)+ transXY[0]);
             int transY = (int)((p.getY()*CONSTANT)+ transXY[1]);
 
@@ -320,7 +325,8 @@ public class DisplayImages {
                 //TESTING
                 if(quadrantsCounts[detQuad[0]][detQuad[1]] > max){
                     max = quadrantsCounts[detQuad[0]][detQuad[1]];
-                }else if(quadrantsCounts[detQuad[0]][detQuad[1]] < min){
+                }
+                if(quadrantsCounts[detQuad[0]][detQuad[1]] < min){
                     min = quadrantsCounts[detQuad[0]][detQuad[1]];
                 }
 
@@ -345,6 +351,8 @@ public class DisplayImages {
         };
     }
 
+
+
     // Function to determine to region of a specific point, return null if none
     private int[] determineRegion(int X, int Y ,int H){
         int[] quadrantPoint = new int[2];
@@ -362,40 +370,34 @@ public class DisplayImages {
         return null;
     }
 
-//        // Determines how to split the regions
-//    private int[] calculateJenksNaturalBreaksClasses(int[][] counts){
-//        // Get the set of elements from counts
-//        int[] classes = new int[5];
-//        List<Integer> values = new ArrayList<Integer>();
-//        for(int i = 0 ; i < counts.length; i++){
-//            for(int j = 0; j < counts[i].length; j++){
-//                values.add(counts[i][j]);
-//            }
-//        }
-//        //Sort the elements, get the set
-//        Collections.sort(values);
-//        HashSet<Integer> set = new HashSet<>(values);
-//        values  = new ArrayList<>(set);
-//        // Calculate diff, add diff to array diff
-//        List<Integer> diff = new ArrayList<>();
-//        for(int i = 0; i < values.size()-1;i++){
-//            diff.add(Math.abs(values.get(i)-values.get(i+1)));
-//        }
-//        Collections.sort(diff);
-//        Collections.reverse(diff);
-//
-//        // Get the 5 largest values
-//        for(int i = 0; i < 5; i++){
-//            try {
-//                classes[i] = diff.get(i);
-//                Log.e("Largest "+ i+" ",""+diff.get(i));
-//            }catch (Exception e){
-//                classes[i] = 0;
-//            }
-//
-//            }
-//        return classes;
-//    }
+    // Returns the mean XY coordinates, [0] is X; [1] is Y
+    private double[] getMeanCenter(){
+        double[] meanXY = new double[2];
+        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
+        // Plot points
+        for (MeasurementService.DataPoint p: list) {
+          meanXY[0] += (p.getX()*CONSTANT)+trans[0];
+          meanXY[1] += (p.getY()*CONSTANT)+trans[1];
+        }
+
+        meanXY[0] = meanXY[0] / list.size();
+        meanXY[1] = meanXY[1] / list.size();
+        return meanXY;
+    }
+
+    // Return the distance between the actual point and the average point
+    public double getMeanCenterDifferenceFromStart(){
+        double[] meanCenter = getMeanCenter();
+        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
+        Log.e("Points","Actual (X,Y) = "+"("+((center.getX()*CONSTANT)+trans[0])+","+((center.getY()*CONSTANT)+trans[1])+")");
+        Log.e("Points","Mean (X,Y) = " + "("+meanCenter[0]+","+meanCenter[1]+")");
+        double result =  Math.sqrt(
+                Math.pow(((center.getX()*CONSTANT)+trans[0]) - meanCenter[0],2)+
+                Math.pow(((center.getY()*CONSTANT)+trans[1]) - meanCenter[1],2)
+        );
+        return result;
+    }
+
 
 
 }
