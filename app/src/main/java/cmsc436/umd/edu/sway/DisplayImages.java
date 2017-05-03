@@ -24,6 +24,11 @@ import java.util.Set;
  *  - Must create buckets which contains the counts of repeated quadrant counts:
  *      - # of buckets = # of shades
  *
+ *
+ * - Average
+ *
+ *
+ *
  */
 
 public class DisplayImages {
@@ -146,7 +151,7 @@ public class DisplayImages {
 //        for (MeasurementService.DataPoint p: list) {
 //            paint.setColor(Color.RED);
 //            paint.setStyle(Paint.Style.FILL);
-//            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],2.5f,paint);
+//            canvas.drawCircle((p.getX()*CONSTANT)+trans[0],(p.getY()*CONSTANT)+trans[1],2.0f,paint);
 //        }
 
 
@@ -232,6 +237,7 @@ public class DisplayImages {
         return distance;
     }
 
+    // Average point between points
     public float getAverageBetweenPoint(){
        return getMetric()/list.size();
     }
@@ -319,7 +325,8 @@ public class DisplayImages {
                 //TESTING
                 if(quadrantsCounts[detQuad[0]][detQuad[1]] > max){
                     max = quadrantsCounts[detQuad[0]][detQuad[1]];
-                }else if(quadrantsCounts[detQuad[0]][detQuad[1]] < min){
+                }
+                if(quadrantsCounts[detQuad[0]][detQuad[1]] < min){
                     min = quadrantsCounts[detQuad[0]][detQuad[1]];
                 }
 
@@ -344,6 +351,8 @@ public class DisplayImages {
         };
     }
 
+
+
     // Function to determine to region of a specific point, return null if none
     private int[] determineRegion(int X, int Y ,int H){
         int[] quadrantPoint = new int[2];
@@ -361,5 +370,19 @@ public class DisplayImages {
         return null;
     }
 
+    // Returns the mean XY coordinates, [0] is X; [1] is Y
+    private int[] getMeanCenter(){
+        int[] meanXY = new int[2];
+        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
+        // Plot points
+        for (MeasurementService.DataPoint p: list) {
+          meanXY[0] += (p.getX()*CONSTANT)+trans[0];
+          meanXY[1] += (p.getY()*CONSTANT)+trans[1];
+        }
+
+        meanXY[0] = meanXY[0] / list.size();
+        meanXY[1] = meanXY[1] / list.size();
+        return meanXY;
+    }
 
 }
