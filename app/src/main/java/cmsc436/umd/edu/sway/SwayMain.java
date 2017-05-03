@@ -526,7 +526,6 @@ public class SwayMain extends AppCompatActivity {
 
             int result = interpretSpeech(matches);
             Log.e("SPEECH", Arrays.toString(matches.toArray()) + "\n\t\t\tRESULT: "+result);
-            textView.setText(Arrays.toString(matches.toArray()));
             //TODO ADD GOING BACK TO VR
 //            if(result == 1) setResult(RESULT_CANCELED);
             if(result == 0){
