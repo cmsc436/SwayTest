@@ -279,13 +279,13 @@ public class SwayMain extends AppCompatActivity {
     private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
         @Override
         public void onStart(String utteranceId) {
-            SwayMain.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e("Speech", "STARTED SPEECH RECOG");
-                    speechRecognizer.startListening(speechRecogIntent);
-                }
-            });
+//            SwayMain.this.runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Log.e("Speech", "STARTED SPEECH RECOG");
+//                    speechRecognizer.startListening(speechRecogIntent);
+//                }
+//            });
         }
 
         // TODO REMOVE PRESTART WHEN SPEECH IS IMPLEMENTED
@@ -374,6 +374,8 @@ public class SwayMain extends AppCompatActivity {
             isDone = true; // set to true so returning from results we can send the info to Front end
 //            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT); // starting the Result activity
+
+            Log.e("DIFFXY",""+visuals.getMeanCenterDifferenceFromStart());
 
             // END
         }
@@ -478,6 +480,8 @@ public class SwayMain extends AppCompatActivity {
         public void onRmsChanged(float rmsdB) {
         }
     }
+
+
 
     /***********************************************************************************************
      *                              TOUCH EVENTS USED FOR TWO FINGER TOUCH

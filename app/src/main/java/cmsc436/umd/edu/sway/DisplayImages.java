@@ -371,8 +371,8 @@ public class DisplayImages {
     }
 
     // Returns the mean XY coordinates, [0] is X; [1] is Y
-    private int[] getMeanCenter(){
-        int[] meanXY = new int[2];
+    private double[] getMeanCenter(){
+        double[] meanXY = new double[2];
         float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
         // Plot points
         for (MeasurementService.DataPoint p: list) {
@@ -384,5 +384,20 @@ public class DisplayImages {
         meanXY[1] = meanXY[1] / list.size();
         return meanXY;
     }
+
+    // Return the distance between the actual point and the average point
+    public double getMeanCenterDifferenceFromStart(){
+        double[] meanCenter = getMeanCenter();
+        float[] trans = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE,BITMAP_SIZE,CONSTANT);
+        Log.e("Points","Actual (X,Y) = "+"("+((center.getX()*CONSTANT)+trans[0])+","+((center.getY()*CONSTANT)+trans[1])+")");
+        Log.e("Points","Mean (X,Y) = " + "("+meanCenter[0]+","+meanCenter[1]+")");
+        double result =  Math.sqrt(
+                Math.pow(((center.getX()*CONSTANT)+trans[0]) - meanCenter[0],2)+
+                Math.pow(((center.getY()*CONSTANT)+trans[1]) - meanCenter[1],2)
+        );
+        return result;
+    }
+
+
 
 }
