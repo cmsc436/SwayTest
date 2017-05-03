@@ -21,10 +21,6 @@ import java.util.List;
 import edu.umd.cmsc436.frontendhelper.TrialMode;
 import edu.umd.cmsc436.sheets.Sheets;
 
-// Sorry Lauren, I know this is your precious code
-// but I need to add some stuff to it :]
-// ~Sam
-// P.S I Promise to Comment
 public class FragmentPagerSupport extends AppCompatActivity {
     static final String ACTION_HELP = "edu.umd.cmsc436.balance.action.HELP";
     static final String ACTION_PRACTICE = "edu.umd.cmsc436.balance.action.PRACTICE";
@@ -47,10 +43,6 @@ public class FragmentPagerSupport extends AppCompatActivity {
         String action = intent.getAction();
         switch(action) {
             case ACTION_PRACTICE:
-            /*    Intent newIntent = new Intent(this, SwayMain.class);
-                newIntent.putExtras(intent);
-                startActivity(newIntent);
-                break;*/
             case ACTION_HELP:
                 addFragments();
                 break;
@@ -59,20 +51,19 @@ public class FragmentPagerSupport extends AppCompatActivity {
                 Log.e("INSTR", "TEST_TYPE: "+testType.name());
                 switch (testType) {
                     case SWAY_OPEN_APART:
-                        mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_1));
+                        mAdapter.addFragment(LastFragment.newInstance(R.array.test_instr_text_1));
                         break;
                     case SWAY_OPEN_TOGETHER:
-                        mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_2));
+                        mAdapter.addFragment(LastFragment.newInstance(R.array.test_instr_text_2));
                         break;
                     case SWAY_CLOSED:
-                        mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_3));
+                        mAdapter.addFragment(LastFragment.newInstance(R.array.test_instr_text_3));
                         break;
                     default:
                         break;
                 }
                 break;
             case ACTION_HISTORY:
-
                 break;
 
         }
@@ -81,17 +72,16 @@ public class FragmentPagerSupport extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e("ACTIVITY_RESULT","AC CALLED: "+data.getFloatExtra(TrialMode.KEY_SCORE,-1));
-
         setResult(resultCode,data);
         finish();
     }
 
     private void addFragments() {
-        mAdapter.addFragment(FirstFragment.newInstance(0));
-        mAdapter.addFragment(PageFragment.newInstance(1, R.array.test_instr_text_1));
-        mAdapter.addFragment(PageFragment.newInstance(2, R.array.test_instr_text_2));
-        mAdapter.addFragment(PageFragment.newInstance(3, R.array.test_instr_text_3));
-        mAdapter.addFragment(LastFragment.newInstance(4, R.array.practice_text));
+        mAdapter.addFragment(PageFragment.newInstance(R.array.instruction_overview));
+        mAdapter.addFragment(PageFragment.newInstance(R.array.test_instr_text_1));
+        mAdapter.addFragment(PageFragment.newInstance(R.array.test_instr_text_2));
+        mAdapter.addFragment(PageFragment.newInstance(R.array.test_instr_text_3));
+        mAdapter.addFragment(LastFragment.newInstance(R.array.practice_text));
     }
 
     public static class MyAdapter extends FragmentPagerAdapter {
@@ -115,38 +105,45 @@ public class FragmentPagerSupport extends AppCompatActivity {
         }
     }
 
-    public static class FirstFragment extends Fragment {
-        public static final String ARG_PAGE = "ARG_PAGE";
-        private int mPage;
+    public static class PageFragment extends Fragment {
+        public static final String ARG_ID = "ARG_ID";
+        private int mId;
 
-        public static FirstFragment newInstance(int page) {
-            FirstFragment fragment = new FirstFragment();
+        public static PageFragment newInstance(int id) {
+            PageFragment fragment = new PageFragment();
             Bundle args = new Bundle();
-            args.putInt(ARG_PAGE, page);
+            args.putInt(ARG_ID, id);
             fragment.setArguments(args);
             return fragment;
         }
 
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mPage = getArguments().getInt(ARG_PAGE);
+            mId = getArguments().getInt(ARG_ID);
         }
 
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_first, container, false);
+            View view = inflater.inflate(R.layout.fragment_page, container, false);
+
+            Resources res = getResources();
+            String[] text = res.getStringArray(mId);
+
+            TextView titleTextView = (TextView) view.findViewById(R.id.page_title);
+            titleTextView.setText(text[0]);
+
+            TextView instructionsTextView = (TextView) view.findViewById(R.id.page_text);
+            instructionsTextView.setText(text[1]);
+
             return view;
         }
     }
 
     public static class LastFragment extends Fragment {
-        public static final String ARG_PAGE = "ARG_PAGE";
         public static final String ARG_ID = "ARG_ID";
-        private int mPage;
         private int mId;
 
-        public static LastFragment newInstance(int page, int id) {
+        public static LastFragment newInstance(int id) {
             Bundle args = new Bundle();
-            args.putInt(ARG_PAGE, page);
             args.putInt(ARG_ID, id);
             LastFragment fragment = new LastFragment();
             fragment.setArguments(args);
@@ -155,7 +152,6 @@ public class FragmentPagerSupport extends AppCompatActivity {
 
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mPage = getArguments().getInt(ARG_PAGE);
             mId = getArguments().getInt(ARG_ID);
         }
 
@@ -181,10 +177,6 @@ public class FragmentPagerSupport extends AppCompatActivity {
                     intent.setAction(currIntent.getAction());
                     startActivity(intent);
                     getActivity().finish();
-                    //intent.putExtras(getActivity().getIntent());
-                    //intent.setAction(getActivity().getIntent().getAction());
-                    //startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT);
-
                 }
             });
 
@@ -192,40 +184,4 @@ public class FragmentPagerSupport extends AppCompatActivity {
         }
     }
 
-    public static class PageFragment extends Fragment {
-        public static final String ARG_PAGE = "ARG_PAGE";
-        public static final String ARG_ID = "ARG_ID";
-        private int mPage;
-        private int mId;
-
-        public static PageFragment newInstance(int page, int id) {
-            PageFragment fragment = new PageFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_PAGE, page);
-            args.putInt(ARG_ID, id);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            mPage = getArguments().getInt(ARG_PAGE);
-            mId = getArguments().getInt(ARG_ID);
-        }
-
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_page, container, false);
-
-            Resources res = getResources();
-            String[] text = res.getStringArray(mId);
-
-            TextView titleTextView = (TextView) view.findViewById(R.id.page_title);
-            titleTextView.setText(text[0]);
-
-            TextView instructionsTextView = (TextView) view.findViewById(R.id.page_text);
-            instructionsTextView.setText(text[1]);
-
-            return view;
-        }
-    }
 }

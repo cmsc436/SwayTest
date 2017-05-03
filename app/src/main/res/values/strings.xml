@@ -30,31 +30,22 @@
     <!--<string name="countdown">Now We can start the test in five,,,,,,,,,,, four,,,,,,,,, three,,,,,,,, two,,,,,,,, one</string>-->
     <string name="countdown">Testing Is Now. Initiating. </string>
 
-
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <!--Help mode should display instructions or a guide to using the specific test, and then switch to Practice mode.-->
-    <string name="instruction_overview">
-        Welcome to the user instruction guide for the Sway Test.
-        The Sway Test will consist of three different tests.
-        Swipe left to view the instructions for each (specific) test.
-        After viewing the instructions, the app will switch to Practice mode.
-        Practice mode will allow you to practice the Sway Test as long as you want before exiting.
-    </string>
-    <string name="instruction_title">Instructions</string>
+
 
     <string name="ins_intro">\t\t\t\t\t\t\t\t \n\t Please swipe through the instructions for \teach test</string>
-    <string name="text_1">\t\t\t\t\t\t\t\t \n\t TEST 1\n\t Please have legs opened and aligned with your shoulders</string>
-    <string name="test_instr_text_2">\t\t\t\t\tTEST 2 \n\n Please have your legs closed \nand eyes opened</string>
-    <string name="test_instr_text_3">\t\t\t\t\tTEST 3 \n\n Please have your legs closed and eyes closed</string>
-
-    <string name="ins_1">\t\t\t\t\t\t\t\t \n\t TEST 1\n\t Please have legs opened and aligned with your shoulders</string>
-    <string name="ins_2">\t\t\t\t\tTEST 2 \n\n Please have your legs closed \nand eyes opened</string>
-    <string name="ins_3">\t\t\t\t\tTEST 3 \n\n Please have your legs closed and eyes closed</string>
 
     <string name="text_with_paras">Instructions: You need to have eyes closed and\n legs opened</string>
+
+    <string-array name="instruction_overview">
+        <item>Instructions</item>
+        <item>Welcome to the user instruction guide for the Sway Test.
+            The Sway Test will consist of three different tests.
+            Swipe left to view the instructions for each (specific) test.
+            After viewing the instructions, the app will switch to Practice mode.
+            Practice mode will allow you to practice the Sway Test as long as you want before exiting.
+        </item>
+    </string-array>
 
     <string-array name="test_instr_text_1">
         <item>Test 1</item>
@@ -77,4 +68,13 @@
             Practice mode will allow you to practice the Sway Test
             as long as you wish to before exiting.</item>
     </string-array>
+
+    <!--<string name="instruction_overview">
+        Welcome to the user instruction guide for the Sway Test.
+        The Sway Test will consist of three different tests.
+        Swipe left to view the instructions for each (specific) test.
+        After viewing the instructions, the app will switch to Practice mode.
+        Practice mode will allow you to practice the Sway Test as long as you want before exiting.
+    </string>
+    <string name="instruction_title">Instructions</string>-->
 </resources>

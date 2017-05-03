@@ -41,6 +41,5 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
-
         android:background="@drawable/help_button"/>
 </RelativeLayout>
