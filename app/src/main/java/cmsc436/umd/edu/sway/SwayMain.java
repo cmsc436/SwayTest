@@ -160,8 +160,8 @@ public class SwayMain extends AppCompatActivity {
         // will take care of taking in vocal input
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecogIntent = getSpeechRecognitionIntent(); // intent used for SR
-//        speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
-        speechRecognizer.setRecognitionListener(recognitionListener); // Listener to react to when speech
+        speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
+//        speechRecognizer.setRecognitionListener(recognitionListener); // Listener to react to when speech
 
         final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
         instructionsIntent.putExtras(currentIntent);
