@@ -11,21 +11,21 @@
     </string>
 
     <string name="test_instr_1">
-       Hello, This is the First Test of the Balance Tests. In this test I will need you to spread you legs to your shoulder width,. \n to start the test double tap with two fingers on the screen, or say go
+       Hello, This is the First Test of the Balance Tests. In this test I will need you to spread you legs to your shoulder width,. \n to start the test double tap with two fingers on the screen at anytime, or say go then beeping
     </string>
 
     <string name="test_instr_2">
         Hello, this is the second of the Balance Tests. In this test I will need you keep your legs closed, so that they are touching each other, and keep your eyes open
-        ,. \n to start the test double tap with two fingers on the screen, or say go
+        ,. \n to start the test double tap with two fingers on the screen at anytime, or say go then beeping
     </string>
 
     <string name="test_instr_3">
         Hello, this is the third of the Balance Tests. In this test I will need you keep your legs closed, so that they are touching each other, keep your eyes closed
-        ,. \n to start the test double tap with two fingers on the screen, or say go
+        ,. \n to start the test double tap with two fingers on the screen at anytime, or say go then beeping
     </string>
 
     <string name="test_instr_practice">
-        Hello, this is the practice Balance Tests. Please Stand However you would like.\n double tap with two fingers on the screen to start the test
+        Hello, this is the practice Balance Tests. Please Stand However you would like.\n to start the test double tap with two fingers on the screen at anytime, or say go then beeping
     </string>
 
     <string name="countdown">Now We can start the test in five. . . . four. . . . three. . . . two. . . . one</string>

@@ -58,7 +58,7 @@
                 android:id="@+id/sway_result_final_score"/>
         </RadioGroup>
         <Button
-            android:text="Next Trial"
+            android:text="Done"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/back_button"/>
