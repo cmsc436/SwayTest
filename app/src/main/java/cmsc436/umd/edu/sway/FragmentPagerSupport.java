@@ -179,10 +179,16 @@ public class FragmentPagerSupport extends AppCompatActivity {
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    Intent currIntent = getActivity().getIntent();
+                    Intent intent = new Intent(getActivity(), SwayMain.class);
+                    intent.putExtras(currIntent);
+                    intent.setAction(currIntent.getAction());
+                    startActivity(intent);
                     getActivity().finish();
-                    //Intent intent = new Intent(getActivity(), SwayMain.class);
                     //intent.putExtras(getActivity().getIntent());
+                    //intent.setAction(getActivity().getIntent().getAction());
                     //startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT);
+
                 }
             });
 
