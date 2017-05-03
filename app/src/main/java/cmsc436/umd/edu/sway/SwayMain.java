@@ -160,7 +160,8 @@ public class SwayMain extends AppCompatActivity {
         // will take care of taking in vocal input
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecogIntent = getSpeechRecognitionIntent(); // intent used for SR
-        speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
+//        speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
+        speechRecognizer.setRecognitionListener(recognitionListener); // Listener to react to when speech
 
         final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
         instructionsIntent.putExtras(currentIntent);
@@ -451,7 +452,7 @@ public class SwayMain extends AppCompatActivity {
                 Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
                 this.getPackageName());
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,50000);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,10000);
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
 
         return intent;
@@ -495,7 +496,7 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onError(int error) {
-//            Log.d(MD+LN,"SpeechRecognitionListener - onError   "+ error);
+            Log.d(MD+LN,"SpeechRecognitionListener - onError   "+ error);
             speechRecognizer.startListening(speechRecogIntent);
 
             //Log.d(TAG, "error = " + error);
@@ -633,4 +634,168 @@ public class SwayMain extends AppCompatActivity {
 
 
     }
+
+    public class BugRecognitionListener implements RecognitionListener {
+
+        private final String CLS_NAME = BugRecognitionListener.class.getSimpleName();
+
+        private boolean doError;
+        private boolean doEndOfSpeech;
+        private boolean doBeginningOfSpeech;
+
+        public void resetBugVariables() {
+            Log.i(CLS_NAME, "resetBugVariables");
+
+            doError = false;
+            doEndOfSpeech = false;
+            doBeginningOfSpeech = false;
+        }
+
+        /**
+         * Called when the endpointer is ready for the user to start speaking.
+         *
+         * @param params parameters set by the recognition service. Reserved for future use.
+         */
+        @Override
+        public void onReadyForSpeech(final Bundle params) {
+            doError = true;
+            doEndOfSpeech = true;
+            doBeginningOfSpeech = true;
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+            Log.i(CLS_NAME, "onBeginningOfSpeech: doEndOfSpeech: " + doEndOfSpeech);
+            Log.i(CLS_NAME, "onBeginningOfSpeech: doError: " + doError);
+            Log.i(CLS_NAME, "onBeginningOfSpeech: doBeginningOfSpeech: " + doBeginningOfSpeech);
+
+            if (doBeginningOfSpeech) {
+                doBeginningOfSpeech = false;
+                onBeginningOfRecognition();
+            }
+
+        }
+
+        public void onBeginningOfRecognition() {
+        }
+
+        @Override
+        public void onRmsChanged(final float rmsdB) {
+        }
+
+        @Override
+        public void onBufferReceived(final byte[] buffer) {
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+            Log.i(CLS_NAME, "onEndOfSpeech: doEndOfSpeech: " + doEndOfSpeech);
+            Log.i(CLS_NAME, "onEndOfSpeech: doError: " + doError);
+            Log.i(CLS_NAME, "onEndOfSpeech: doBeginningOfSpeech: " + doBeginningOfSpeech);
+
+            if (doEndOfSpeech) {
+                onEndOfRecognition();
+            }
+        }
+
+        public void onEndOfRecognition() {
+        }
+
+        @Override
+        public void onError(final int error) {
+            Log.w(CLS_NAME, "onError: doEndOfSpeech: " + doEndOfSpeech);
+            Log.w(CLS_NAME, "onError: doError: " + doError);
+            Log.w(CLS_NAME, "onError: doBeginningOfSpeech: " + doBeginningOfSpeech);
+
+            if (doError) {
+                onRecognitionError(error);
+            }
+        }
+
+        public void onRecognitionError(final int error) {
+        }
+
+        @Override
+        public void onResults(final Bundle results) {
+        }
+
+        @Override
+        public void onPartialResults(final Bundle partialResults) {
+        }
+
+        @Override
+        public void onEvent(final int eventType, final Bundle params) {
+        }
+
+    }
+
+    private final BugRecognitionListener recognitionListener = new BugRecognitionListener() {
+
+        /**
+         * MUST CALL SUPER!
+         */
+        @Override
+        public void onReadyForSpeech(final Bundle params) {
+            super.onReadyForSpeech(params);
+        }
+
+        /**
+         * Instead of {@link RecognitionListener#onEndOfSpeech()}
+         */
+        @Override
+        public void onEndOfRecognition() {
+        }
+
+        /**
+         * Instead of {@link RecognitionListener#onError(int)}
+         *
+         * @param error the error code
+         */
+        @Override
+        public void onRecognitionError(final int error) {
+            speechRecognizer.startListening(speechRecogIntent);
+
+        }
+
+        /**
+         * Instead of {@link RecognitionListener#onBeginningOfSpeech()}
+         */
+        @Override
+        public void onBeginningOfRecognition() {
+        }
+
+        @Override
+        public void onBufferReceived(final byte[] buffer) {
+        }
+
+        @Override
+        public void onEvent(final int eventType, final Bundle params) {
+        }
+
+        @Override
+        public void onPartialResults(final Bundle partialResults) {
+        }
+
+        @Override
+        public void onResults(final Bundle results) {
+            Log.d(MD+LN,"SpeechRecognitionListener - onResult");
+            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            // matches are the return values of speech recognition engine
+            // Use these values for whatever you wish to do
+
+            int result = interpretSpeech(matches);
+            Log.e("SPEECH", Arrays.toString(matches.toArray()) + "\n\t\t\tRESULT: "+result);
+            //TODO ADD GOING BACK TO VR
+//            if(result == 1) setResult(RESULT_CANCELED);
+            if(result == 0){
+                speechRecognizer.destroy();
+                tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
+            }
+            else restartSpeech();
+        }
+
+        @Override
+        public void onRmsChanged(final float rmsdB) {
+        }
+    };
 }
