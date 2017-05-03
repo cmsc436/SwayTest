@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.speech.RecognitionListener;
@@ -18,10 +19,11 @@ import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -159,6 +161,17 @@ public class SwayMain extends AppCompatActivity {
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecogIntent = getSpeechRecognitionIntent(); // intent used for SR
         speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
+
+        final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
+        instructionsIntent.putExtras(currentIntent);
+        Button instrButton = (Button) findViewById(R.id.instr_button);
+        instrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(instructionsIntent);
+            }
+        });
+
     }
 
 

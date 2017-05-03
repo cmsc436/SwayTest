@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -180,10 +179,10 @@ public class FragmentPagerSupport extends AppCompatActivity {
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // START SWAY TEST ACTIVITY HERE
-                    Intent intent = new Intent(getActivity(), SwayMain.class);
-                    intent.putExtras(getActivity().getIntent());
-                    startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT);
+                    getActivity().finish();
+                    //Intent intent = new Intent(getActivity(), SwayMain.class);
+                    //intent.putExtras(getActivity().getIntent());
+                    //startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT);
                 }
             });
 
