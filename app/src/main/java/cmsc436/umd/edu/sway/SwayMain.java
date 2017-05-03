@@ -16,6 +16,8 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +36,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import edu.umd.cmsc436.frontendhelper.TrialMode;
 import edu.umd.cmsc436.sheets.Sheets;
@@ -127,6 +130,13 @@ public class SwayMain extends AppCompatActivity {
         //                              TTS                             //
         //////////////////////////////////////////////////////////////////
         tts = new TextToSpeech(this,onInitListener); // Responsible for "Talking:
+        tts.setVoice(new Voice(
+                "Main",
+                Locale.getDefault(),
+                Voice.QUALITY_HIGH,
+                Voice.LATENCY_NORMAL,
+                false,
+                new HashSet<String>()));
         ttsParams = new Bundle(); // the Bundle used by TTS to recognize its Engine's Utterance
         ttsParams.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"1");// setting up KV pair
         // there have been time then the listener is not set up correctly, it is device specific
@@ -213,6 +223,8 @@ public class SwayMain extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         tts.stop();
+        preTest.cancel();
+        duringTest.cancel();
     }
 
     //unbinding the activity to the service
@@ -229,7 +241,6 @@ public class SwayMain extends AppCompatActivity {
     public void onBackPressed() {
         Log.d(MD,"-------------------onBackPressed");
         if(!isDone) {
-            duringTest.cancel();
             Intent i = new Intent();
             i.putExtra(TrialMode.KEY_SCORE,finalScore);
             setResult(RESULT_CANCELED,i);
