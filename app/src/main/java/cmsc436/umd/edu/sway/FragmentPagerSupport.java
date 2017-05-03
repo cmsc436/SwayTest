@@ -48,13 +48,13 @@ public class FragmentPagerSupport extends AppCompatActivity {
         //String action = "edu.umd.cmsc436.balance.action.HELP";
 //        String action = "edu.umd.cmsc436.balance.action.TRIAL";
         switch(action) {
-            case ACTION_HELP:
-                addFragments();
-                break;
             case ACTION_PRACTICE:
-                Intent newIntent = new Intent(this, SwayMain.class);
+            /*    Intent newIntent = new Intent(this, SwayMain.class);
                 newIntent.putExtras(intent);
                 startActivity(newIntent);
+                break;*/
+            case ACTION_HELP:
+                addFragments();
                 break;
             case ACTION_TRIAL:
                 Sheets.TestType testType = TrialMode.getAppendage(intent);
