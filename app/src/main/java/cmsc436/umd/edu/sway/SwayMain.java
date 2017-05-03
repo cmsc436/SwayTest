@@ -38,6 +38,9 @@ import edu.umd.cmsc436.sheets.Sheets;
 
 public class SwayMain extends AppCompatActivity {
 
+    private final String MD = "METHOD";
+    private final String LN = "LISTENER";
+
     /***************TEST DURATION AND DEFINATION***************/
     // total test time = TEST_DURATION + PRETEST_DURATION
     private final int TEST_DURATION = 10000; // how long the test will last (in milliseconds)
@@ -113,7 +116,7 @@ public class SwayMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
 
-        Log.e("STAGE", "ONCREATE");
+        Log.d(MD,"------------------- ON CREATE ");
         Collections.addAll(RETURN_KEY_PHRASE, RET);
         Collections.addAll(CONTINUE_KEY_PHRASE,CONT);
         isDone = false;
@@ -124,10 +127,10 @@ public class SwayMain extends AppCompatActivity {
         tts = new TextToSpeech(this,onInitListener); // Responsible for "Talking:
         ttsParams = new Bundle(); // the Bundle used by TTS to recognize its Engine's Utterance
         ttsParams.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"1");// setting up KV pair
-
         // there have been time then the listener is not set up correctly, it is device specific
         int message =  tts.setOnUtteranceProgressListener(utteranceProgressListener);
         if(message == TextToSpeech.ERROR) Toast.makeText(this,"PROBLEM SETTING UTTRANCE ",Toast.LENGTH_LONG).show();
+
 
         textView = (TextView) findViewById(R.id.sway_text);
         getPermission();
@@ -163,11 +166,7 @@ public class SwayMain extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-//        if(isTrial && currentTrial != TrialMode.getTrialNum(currentIntent)){
-//            currentTrial = TrialMode.getTrialNum(currentIntent);
-//            isDone = false;
-//        }
-        Log.i("STAGE", "ON START");
+        Log.d(MD,"-------------------onStart");
         bindService(
                 new Intent(this,MeasurementService.class),
                 serviceConnection,
@@ -180,15 +179,22 @@ public class SwayMain extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i("STAGE", "ON RESUME");
+        Log.d(MD,"-------------------onResume");
         if(!isDone)initializeTestingProcedure();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        tts.stop();
     }
 
     //unbinding the activity to the service
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(MD,"-------------------onDestroy");
         if(isServiceBound) unbindService(serviceConnection);
         tts.shutdown();
         if(speechRecognizer != null) speechRecognizer.destroy();
@@ -196,6 +202,7 @@ public class SwayMain extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        Log.d(MD,"-------------------onBackPressed");
         if(!isDone) {
             Intent i = new Intent();
             i.putExtra(TrialMode.KEY_SCORE,finalScore);
@@ -206,6 +213,7 @@ public class SwayMain extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(MD,"-------------------onActivityResult");
         isDone = false;
         Log.e("SWAY_MAIN_AC_RESULT","DATA: "+data.getFloatExtra(TrialMode.KEY_SCORE,-1));
         setResult(resultCode,data);
@@ -213,13 +221,11 @@ public class SwayMain extends AppCompatActivity {
     }
 
     public void initializeTestingProcedure(){
-        Log.e("CLICK ME","IN CLICK ME");
+        Log.d(MD,"initializeTestingProcedure");
         tts.stop();
         textView.setText("Test Starting");
-        speakText(currentTest);
+        speechRecognizer.startListening(speechRecogIntent);
     }
-
-
 
 
 
@@ -227,12 +233,14 @@ public class SwayMain extends AppCompatActivity {
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(MD+LN,"ServiceConnection - onServiceConnected");
             measurementService = ((MeasurementService.LocalBinder)service).getService();
             isServiceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(MD+LN,"ServiceConnection - onServiceDisconnected");
             if(measurementService.unhookHandler()){
                 isServiceBound = false;
             }
@@ -241,6 +249,7 @@ public class SwayMain extends AppCompatActivity {
 
     // Handles Intro Speech depending on the Test Type
     private void speakText(Sheets.TestType t){
+        Log.d(MD,"speakText");
         if (!isTrial)
             tts.speak(getString(R.string.test_instr_practice), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
         else if (t == Sheets.TestType.SWAY_OPEN_APART)
@@ -260,15 +269,21 @@ public class SwayMain extends AppCompatActivity {
     private TextToSpeech.OnInitListener onInitListener = new TextToSpeech.OnInitListener() {
         @Override
         public void onInit(int status) {
+            Log.d(MD+LN,"TextToSpeech.OnInitListener - onInit");
+            // called after trying to set up the TTS Engine
             if( status == TextToSpeech.SUCCESS){
-                Log.e("TTS", "SUCESS");
+                Log.e("TTS", "SUCCESS");
                 int result = tts.setLanguage(Locale.US);
                 if(result==TextToSpeech.LANG_MISSING_DATA ||
                         result==TextToSpeech.LANG_NOT_SUPPORTED){
-                    Log.e("error", "This Language is not supported");
+                    Log.e("TTS", "This Language is not supported");
+                    textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
+                }else{
+                    speakText(currentTest);
                 }
 
             }else {
+                textView.setText("TEXT-TO-SPEECH IS NOT SUPPORTED, DO TWO FINGER DOUBLE TAP TO START");
                 Log.e("TTS", "TTS FAILED");
             }
 
@@ -279,6 +294,7 @@ public class SwayMain extends AppCompatActivity {
     private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
         @Override
         public void onStart(String utteranceId) {
+            Log.d(MD+LN,"UtteranceProgressListener - onStart");
 //            SwayMain.this.runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
@@ -291,6 +307,7 @@ public class SwayMain extends AppCompatActivity {
         // TODO REMOVE PRESTART WHEN SPEECH IS IMPLEMENTED
         @Override
         public void onDone(String utteranceId) {
+            Log.d(MD+LN,"UtteranceProgressListener - onDone");
             if(utteranceId.equals("2")) {
                 SwayMain.this.runOnUiThread(new Runnable() {
                     @Override
@@ -304,8 +321,11 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onError(String utteranceId) {
+            Log.d(MD+LN,"UtteranceProgressListener - onError");
 
         }
+
+
     };
 
     /***********************************************************************************************
@@ -317,11 +337,14 @@ public class SwayMain extends AppCompatActivity {
     private CountDownTimer preTest = new CountDownTimer(PRETEST_DURATION,PRETEST_INTERVAL) {
         @Override
         public void onTick(long millisUntilFinished) {
+            Log.d(MD+LN,"CountDownTimer - onTick - PRE");
+
             textView.setText("PRETEST(DB): "+millisUntilFinished/1000);
         }
 
         @Override
         public void onFinish() {
+            Log.d(MD+LN,"CountDownTimer - onFinish - PRE");
             duringTest.start();
             measurementService.restartReading();
             measurementService.startReading();
@@ -334,11 +357,13 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onTick(long millisUntilFinished) {
+            Log.d(MD+LN,"CountDownTimer - onTick - DURING");
             textView.setText("TESTING(DB): "+millisUntilFinished/1000);
         }
 
         @Override
         public void onFinish() {
+            Log.d(MD+LN,"CountDownTimer - onFinish - DURING");
             textView.setText("TEST DONE");
             // stops recording the data
             measurementService.stopReading();
@@ -383,6 +408,7 @@ public class SwayMain extends AppCompatActivity {
 
     // compress the bitmap to 100, so it can be sent via intent
     private byte[] compressToByteArray(Bitmap b){
+        Log.d(MD,"compressToByteArray");
         ByteArrayOutputStream s = new ByteArrayOutputStream();
         b.compress(Bitmap.CompressFormat.PNG,100,s);
         return s.toByteArray();
@@ -394,6 +420,7 @@ public class SwayMain extends AppCompatActivity {
      **********************************************************************************************/
     // sets up the intent that defins the type of Speech Recognition
     private Intent getSpeechRecognitionIntent(){
+        Log.d(MD,"getSpeechRecognitionIntent");
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -410,6 +437,7 @@ public class SwayMain extends AppCompatActivity {
     // returns 1 if the keu phrase is for going back
     // return 0 if it is to start the test
     private int interpretSpeech(ArrayList<String> speechList){
+        Log.d(MD,"interpretSpeech");
         for(String s:speechList){
             if(RETURN_KEY_PHRASE.contains(s)) return 1;
             if(CONTINUE_KEY_PHRASE.contains(s)) return 0;
@@ -419,6 +447,7 @@ public class SwayMain extends AppCompatActivity {
 
     // to restart listening
     private void restartSpeech(){
+        Log.d(MD,"restartSpeech");
         speechRecognizer.stopListening();
         speechRecognizer.startListening(speechRecogIntent);
     }
@@ -427,21 +456,22 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onBeginningOfSpeech() {
-            Log.d("SPEECH", "onBeginingOfSpeech");
+            Log.d(MD+LN,"SpeechRecognitionListener - onBeginningOfSpeech");
         }
 
         @Override
         public void onBufferReceived(byte[] buffer) {
-
+            Log.d(MD+LN,"SpeechRecognitionListener - onBufferReceived");
         }
 
         @Override
         public void onEndOfSpeech() {
-            Log.d("SPEECH", "onEndOfSpeech");
+            Log.d(MD+LN,"SpeechRecognitionListener - onEndOfSpeech");
         }
 
         @Override
         public void onError(int error) {
+            Log.d(MD+LN,"SpeechRecognitionListener - onError");
             speechRecognizer.startListening(speechRecogIntent);
 
             //Log.d(TAG, "error = " + error);
@@ -449,22 +479,22 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onEvent(int eventType, Bundle params) {
-
+            Log.d(MD+LN,"SpeechRecognitionListener - onEvent");
         }
 
         @Override
         public void onPartialResults(Bundle partialResults) {
-
+            Log.d(MD+LN,"SpeechRecognitionListener - onPartialResults");
         }
 
         @Override
         public void onReadyForSpeech(Bundle params) {
-            Log.d("SPEECH", "onReadyForSpeech"); //$NON-NLS-1$
+            Log.d(MD+LN,"SpeechRecognitionListener - onReadyForSpeech");
         }
 
         @Override
         public void onResults(Bundle results) {
-            //Log.d(TAG, "onResults"); //$NON-NLS-1$
+            Log.d(MD+LN,"SpeechRecognitionListener - onResult");
             ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             // matches are the return values of speech recognition engine
             // Use these values for whatever you wish to do
@@ -478,6 +508,7 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onRmsChanged(float rmsdB) {
+            Log.d(MD+LN,"SpeechRecognitionListener - onReadyForSpeech");
         }
     }
 
@@ -552,21 +583,7 @@ public class SwayMain extends AppCompatActivity {
      **********************************************************************************************/
 
     private void getPermission(){
-        if (ContextCompat.checkSelfPermission(SwayMain.this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(SwayMain.this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-            } else {
-                ActivityCompat.requestPermissions(SwayMain.this,
-                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        1);
-            }
-
-        }
+        Log.d(MD,"getPermission");
         if(ContextCompat.checkSelfPermission(SwayMain.this,
                 Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED){
@@ -579,7 +596,7 @@ public class SwayMain extends AppCompatActivity {
                 // No explanation needed, we can request the permission.
 
                 ActivityCompat.requestPermissions(SwayMain.this,
-                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        new String[]{Manifest.permission.RECORD_AUDIO},
                         1);
             }
         }

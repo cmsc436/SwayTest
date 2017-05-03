@@ -99,6 +99,12 @@ public class DisplayResult extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED,new Intent());
+        finish();
+    }
+
+    @Override
     protected void onStart() {
         sheetManager.sendData(
                 rawData,
