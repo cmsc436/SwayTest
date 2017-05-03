@@ -28,11 +28,19 @@
         android:text="Press Get Started"
         android:textSize="43dp"/>
 
-    <Button
+    <!--<Button
         android:id="@+id/instr_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="10dp"
-        android:text="Instructions" />
+        android:text="Instructions" />-->
+
+    <ImageButton
+        android:id="@+id/instr_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/help_icon"
+        android:background="@null"/>
 </RelativeLayout>

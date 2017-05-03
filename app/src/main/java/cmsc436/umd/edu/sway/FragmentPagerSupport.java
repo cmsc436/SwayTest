@@ -45,8 +45,6 @@ public class FragmentPagerSupport extends AppCompatActivity {
 
         Intent intent = getIntent();
         String action = intent.getAction();
-        //String action = "edu.umd.cmsc436.balance.action.HELP";
-//        String action = "edu.umd.cmsc436.balance.action.TRIAL";
         switch(action) {
             case ACTION_PRACTICE:
             /*    Intent newIntent = new Intent(this, SwayMain.class);
@@ -59,11 +57,9 @@ public class FragmentPagerSupport extends AppCompatActivity {
             case ACTION_TRIAL:
                 Sheets.TestType testType = TrialMode.getAppendage(intent);
                 Log.e("INSTR", "TEST_TYPE: "+testType.name());
-//                Sheets.TestType testType = Sheets.TestType.SWAY_OPEN_APART;
                 switch (testType) {
                     case SWAY_OPEN_APART:
                         mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_1));
-
                         break;
                     case SWAY_OPEN_TOGETHER:
                         mAdapter.addFragment(LastFragment.newInstance(0, R.array.test_instr_text_2));

@@ -23,7 +23,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -166,7 +166,16 @@ public class SwayMain extends AppCompatActivity {
         final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
         instructionsIntent.putExtras(currentIntent);
         instructionsIntent.setAction(currentIntent.getAction());
-        Button instrButton = (Button) findViewById(R.id.instr_button);
+        /*Button instrButton = (Button) findViewById(R.id.instr_button);
+        instrButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(instructionsIntent);
+                finish();
+            }
+        });*/
+
+        ImageButton instrButton = (ImageButton) findViewById(R.id.instr_button);
         instrButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
