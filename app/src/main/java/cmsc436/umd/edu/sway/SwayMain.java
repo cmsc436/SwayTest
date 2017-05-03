@@ -164,6 +164,7 @@ public class SwayMain extends AppCompatActivity {
 
         final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
         instructionsIntent.putExtras(currentIntent);
+        instructionsIntent.setAction(currentIntent.getAction());
         Button instrButton = (Button) findViewById(R.id.instr_button);
         instrButton.setOnClickListener(new View.OnClickListener() {
             @Override
