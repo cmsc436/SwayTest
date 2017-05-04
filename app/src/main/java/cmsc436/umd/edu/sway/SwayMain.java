@@ -17,7 +17,6 @@ import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import edu.umd.cmsc436.frontendhelper.TrialMode;
 import edu.umd.cmsc436.sheets.Sheets;
@@ -176,19 +174,22 @@ public class SwayMain extends AppCompatActivity {
         final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
         instructionsIntent.putExtras(currentIntent);
         instructionsIntent.setAction(currentIntent.getAction());
-        /*Button instrButton = (Button) findViewById(R.id.instr_button);
-        instrButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(instructionsIntent);
-                finish();
-            }
-        });*/
 
+        /*AlertDialog.Builder builder = new AlertDialog.Builder(SwayMain.this);
+        builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        builder.setTitle("Instructions");
+        builder.setMessage("Alert message to be shown");
+        final AlertDialog instrDialog = builder.create();*/
+        
         ImageButton instrButton = (ImageButton) findViewById(R.id.instr_button);
         instrButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //instrDialog.show();
                 startActivity(instructionsIntent);
                 finish();
             }
