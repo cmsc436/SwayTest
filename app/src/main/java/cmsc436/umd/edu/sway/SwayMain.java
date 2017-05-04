@@ -133,7 +133,7 @@ public class SwayMain extends AppCompatActivity {
         tts.setVoice(new Voice(
                 "Main",
                 Locale.getDefault(),
-                Voice.QUALITY_HIGH,
+                Voice.QUALITY_NORMAL,
                 Voice.LATENCY_NORMAL,
                 false,
                 new HashSet<String>()));
