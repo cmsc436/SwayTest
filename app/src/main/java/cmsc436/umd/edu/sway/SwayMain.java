@@ -184,7 +184,7 @@ public class SwayMain extends AppCompatActivity {
         builder.setTitle("Instructions");
         builder.setMessage("Alert message to be shown");
         final AlertDialog instrDialog = builder.create();*/
-        
+
         ImageButton instrButton = (ImageButton) findViewById(R.id.instr_button);
         instrButton.setOnClickListener(new View.OnClickListener() {
             @Override
