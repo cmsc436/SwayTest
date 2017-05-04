@@ -26,12 +26,6 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="18sp" />
 
-        <!--<Button
-            android:id="@+id/skip_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="skipInstructions"
-            android:text="Skip" />-->
     </LinearLayout>
 
 

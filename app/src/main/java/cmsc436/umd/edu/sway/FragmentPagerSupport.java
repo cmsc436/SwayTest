@@ -72,7 +72,7 @@ public class FragmentPagerSupport extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e("ACTIVITY_RESULT","AC CALLED: "+data.getFloatExtra(TrialMode.KEY_SCORE,-1));
-        setResult(resultCode,data);
+        setResult(resultCode, data);
         finish();
     }
 
