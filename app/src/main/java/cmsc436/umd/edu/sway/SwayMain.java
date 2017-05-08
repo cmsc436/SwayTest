@@ -4,8 +4,10 @@ package cmsc436.umd.edu.sway;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -17,15 +19,25 @@ import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -72,6 +84,11 @@ public class SwayMain extends AppCompatActivity {
     final static String TEST_TYPE = "TEST_TPE";
     final static String USER_ID = "USER_ID";
 
+    private final static String SHARED_PREF_ID = "com.umd.cmsc436.sway.SHARED_PREF";
+    private final static String SHARED_PREf_HEIGHT_ID = "com.umd.cmsc436.sway.SHARED_PREF.height";
+
+    static float HEIGHT;
+
 
 
     /*************** SERVICE FOR GETTING READING***************/
@@ -86,6 +103,8 @@ public class SwayMain extends AppCompatActivity {
     boolean isDone;// is the test done
 
     float finalScore; // what the metric outputs
+    boolean isDoubleTapped = false;
+    boolean instructionsCalled = false;
 
     ///////////////////////////
     //     TRIAL MODE VARS   //
@@ -135,6 +154,10 @@ public class SwayMain extends AppCompatActivity {
 
         //actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        ((BottomNavigationView) findViewById(R.id.bottom_navigation))
+                .setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+
         //actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_48px);
         //actionBar.setDisplayShowHomeEnabled(true);
         //getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -146,6 +169,12 @@ public class SwayMain extends AppCompatActivity {
         Collections.addAll(RETURN_KEY_PHRASE, RET);
         Collections.addAll(CONTINUE_KEY_PHRASE,CONT);
         isDone = false;
+
+        HEIGHT = getSharedPreferences(SHARED_PREF_ID, MODE_PRIVATE)
+                .getFloat(SHARED_PREf_HEIGHT_ID,-1);
+
+        if(HEIGHT == -1) promptForHeight();
+        Log.d("HEIGHT",HEIGHT+"");
 
         //////////////////////////////////////////////////////////////////
         //                              TTS                             //
@@ -177,12 +206,10 @@ public class SwayMain extends AppCompatActivity {
         isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
 
         if(isTrial){
-
             trialNumber = TrialMode.getTrialOutOf(currentIntent);
             currentTrial = TrialMode.getTrialNum(currentIntent);
             Info.setTestType(currentTest);
             Info.setUserId(TrialMode.getPatientId(currentIntent));
-
         }
 
         //////////////////////////////////////////////////////////////
@@ -194,9 +221,9 @@ public class SwayMain extends AppCompatActivity {
         speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
 //        speechRecognizer.setRecognitionListener(recognitionListener); // Listener to react to when speech
 
-        final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
-        instructionsIntent.putExtras(currentIntent);
-        instructionsIntent.setAction(currentIntent.getAction());
+//        final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
+//        instructionsIntent.putExtras(currentIntent);
+//        instructionsIntent.setAction(currentIntent.getAction());
 
         /*AlertDialog.Builder builder = new AlertDialog.Builder(SwayMain.this);
         builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
@@ -217,6 +244,13 @@ public class SwayMain extends AppCompatActivity {
                 finish();
             }
         });*/
+
+//        ((Button) findViewById(R.id.sway_main_button_tts_instr)).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                speakTextInstruction(currentTest);
+//            }
+//        });
 
     }
 
@@ -240,12 +274,16 @@ public class SwayMain extends AppCompatActivity {
         super.onResume();
         Log.d(MD,"-------------------onResume");
         if(!isDone)initializeTestingProcedure();
+        if(instructionsCalled){
+            tts.speak(getString(R.string.sway_tts_start_instr),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+        }
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        isDoubleTapped = false;
         tts.stop();
         preTest.cancel();
         duringTest.cancel();
@@ -282,6 +320,8 @@ public class SwayMain extends AppCompatActivity {
         finish();
     }
 
+
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
@@ -290,7 +330,51 @@ public class SwayMain extends AppCompatActivity {
     public void initializeTestingProcedure(){
         Log.d(MD,"initializeTestingProcedure");
         tts.stop();
+
         //textView.setText("Test Starting");
+    }
+
+    /***********************************************************************************************
+     *                                      MENU
+     **********************************************************************************************/
+
+    BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Toast.makeText(SwayMain.this,getResources().getResourceEntryName(item.getItemId())+"",Toast.LENGTH_LONG).show();
+            switch (item.getItemId()){
+                case R.id.home:
+                    onBackPressed();
+                    return true;
+                case R.id.action_help:
+                    startInstruction();
+                    return true;
+                case R.id.action_replay:
+                    speakTextInstruction(currentTest);
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Toast.makeText(this,getResources().getResourceEntryName(item.getItemId())+"",Toast.LENGTH_LONG).show();
+        switch (item.getItemId()){
+            case R.id.action_help:
+                startInstruction();
+                return true;
+        }
+        return false;
+    }
+
+    private void startInstruction(){
+        final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
+        instructionsIntent.putExtras(currentIntent);
+        instructionsIntent.setAction(currentIntent.getAction());
+        startActivity(instructionsIntent);
+        instructionsCalled = true;
+//        finish();
     }
 
 
@@ -313,8 +397,16 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
+    /***********************************************************************************************
+     *                                  TEXT - TO - SPEECH
+     **********************************************************************************************/
+
     // Handles Intro Speech depending on the Test Type
-    private void speakText(Sheets.TestType t){
+    private void speakTextInstruction(Sheets.TestType t){
+        speechRecognizer.stopListening();
+        measurementService.restartReading();
+        if(preTest != null) preTest.cancel();
+        if(duringTest != null) duringTest.cancel();
         Log.d(MD,"speakText");
         if (!isTrial)
             tts.speak(getString(R.string.test_instr_practice), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
@@ -345,7 +437,7 @@ public class SwayMain extends AppCompatActivity {
                     Log.e("TTS", "This Language is not supported");
                     //textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
                 }else{
-                    speakText(currentTest);
+                    tts.speak(getString(R.string.sway_tts_start_instr),TextToSpeech.QUEUE_ADD,ttsParams,"1");
                 }
 
             }else {
@@ -387,6 +479,15 @@ public class SwayMain extends AppCompatActivity {
                     public void run() {
                         Log.e("STARTING", "Staring Preest");
                         preTest.start();
+                        isDoubleTapped = true;
+                    }
+                });
+            }
+            else if(utteranceId.equals("3")){
+                SwayMain.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        testDone();
                     }
                 });
             }
@@ -436,48 +537,51 @@ public class SwayMain extends AppCompatActivity {
 
         @Override
         public void onFinish() {
+            tts.speak(getString(R.string.tts_testing_done),TextToSpeech.QUEUE_ADD, ttsParams, "3");
             Log.d(MD+LN,"CountDownTimer - onFinish - DURING");
-            //textView.setText("TEST DONE");
-            // stops recording the data
-            measurementService.stopReading();
-            // now you can call measurementService.getDataList()
-            // which will return the recorded data
-            List<MeasurementService.DataPoint> l = measurementService.getDataList();
 
-            Log.e("DataCollection", ""+l.size());
-
-            // Added the replacement using DisplayImages :: BEGIN
-            DisplayImages visuals = new DisplayImages(l, measurementService.getInitialReading());
-            finalScore = visuals.getMetric();
-            Intent intent =  new Intent(SwayMain.this,DisplayResult.class); // intent for result class
-            intent.putExtra(HEATMAP, compressToByteArray(visuals.getQuadrantAnalysis())); //heat map
-            intent.putExtra(PATHMAP, compressToByteArray(visuals.getPath())); // path map
-            intent.putExtra(FINAL_SCORE, finalScore); // metric
-
-            float statData = visuals.getAverageBetweenPoint();
-            intent.putExtra(AVG_BW_POINTS,statData);
-            statData = visuals.getVarianceBetweenPoint(statData);
-            intent.putExtra(VAR_BW_POINTS,statData);
-            statData = visuals.getStdDevBetweenPoint(statData);
-            intent.putExtra(STD_DEV_BW_POINTS,statData);
-
-            statData = visuals.getAverageFromCenter();
-            intent.putExtra(AVG_FR_CENTER,statData);
-            statData = visuals.getVarianceFromCenter(statData);
-            intent.putExtra(VAR_FR_CENTER,statData);
-            statData = visuals.getStdDevFromCenter(statData);
-            intent.putExtra(STD_DEV_FR_CENTER,statData);
-
-            intent.putExtra(TRIAL_NUM,trialNumber); // trial number TODO I DON'T THINK WE NEED THIS
-            isDone = true; // set to true so returning from results we can send the info to Front end
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT); // starting the Result activity
-
-            Log.e("DIFFXY",""+visuals.getMeanCenterDifferenceFromStart());
-
-            // END
         }
     };
+
+    private void testDone(){
+        // stops recording the data
+        measurementService.stopReading();
+        // now you can call measurementService.getDataList()
+        // which will return the recorded data
+        List<MeasurementService.DataPoint> l = measurementService.getDataList();
+        Log.e("DataCollection", ""+l.size());
+
+
+        // Added the replacement using DisplayImages :: BEGIN
+        DisplayImages visuals = new DisplayImages(l, measurementService.getInitialReading());
+        finalScore = visuals.getMetric();
+        Intent intent =  new Intent(SwayMain.this,DisplayResult.class); // intent for result class
+        intent.putExtra(HEATMAP, compressToByteArray(visuals.getQuadrantAnalysis())); //heat map
+        intent.putExtra(PATHMAP, compressToByteArray(visuals.getPath())); // path map
+        intent.putExtra(FINAL_SCORE, finalScore); // metric
+
+        float statData = visuals.getAverageBetweenPoint();
+        intent.putExtra(AVG_BW_POINTS,statData);
+        statData = visuals.getVarianceBetweenPoint(statData);
+        intent.putExtra(VAR_BW_POINTS,statData);
+        statData = visuals.getStdDevBetweenPoint(statData);
+        intent.putExtra(STD_DEV_BW_POINTS,statData);
+
+        statData = visuals.getAverageFromCenter();
+        intent.putExtra(AVG_FR_CENTER,statData);
+        statData = visuals.getVarianceFromCenter(statData);
+        intent.putExtra(VAR_FR_CENTER,statData);
+        statData = visuals.getStdDevFromCenter(statData);
+        intent.putExtra(STD_DEV_FR_CENTER,statData);
+        intent.putExtra(TRIAL_NUM,trialNumber); // trial number TODO I DON'T THINK WE NEED THIS
+        isDone = true; // set to true so returning from results we can send the info to Front end
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT); // starting the Result activity
+
+        Log.e("DIFFXY",""+visuals.getMeanCenterDifferenceFromStart());
+
+        // END
+    }
 
     // compress the bitmap to 100, so it can be sent via intent
     private byte[] compressToByteArray(Bitmap b){
@@ -605,13 +709,18 @@ public class SwayMain extends AppCompatActivity {
             tts.stop();
             tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
             Log.e("TOUCH","2");
+
         }
     };
     // On touch event, is two finger are double tapped SimpleTwoFingerDoubleTapDetector Will activate
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(multiTouchListener.onTouchEvent(event))
-            return true;
+        if(!isDoubleTapped) {
+            if (multiTouchListener.onTouchEvent(event)) {
+                isDoubleTapped = true;
+                return true;
+            }
+        }
         return super.onTouchEvent(event);
     }
 
@@ -846,4 +955,35 @@ public class SwayMain extends AppCompatActivity {
         public void onRmsChanged(final float rmsdB) {
         }
     };
+
+
+    private void promptForHeight(){
+        View promptView  = LayoutInflater.from(this).inflate(R.layout.dialog_height_input,null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setView(promptView);
+        final EditText editText = (EditText) promptView.findViewById(R.id.dialog_height_edit_text);
+
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Set Height", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SharedPreferences sharedPreferences =
+                                SwayMain.this.getSharedPreferences(SHARED_PREF_ID,0);
+                        sharedPreferences.edit()
+                                .putFloat(
+                                        SHARED_PREf_HEIGHT_ID,
+                                        Float.valueOf(editText.getText().toString()))
+                                .apply();
+                        HEIGHT = Float.valueOf(editText.getText().toString());
+                        Log.d("HEIGHT",HEIGHT+"");
+                    }
+                });
+
+        alertDialogBuilder.create().show();
+
+
+
+    }
 }

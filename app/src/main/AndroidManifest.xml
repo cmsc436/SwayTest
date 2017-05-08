@@ -25,7 +25,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".FragmentPagerSupport">
+        <activity android:name=".FragmentPagerSupport"
+            android:theme="@style/Theme.AppCompat.Dialog">
             <intent-filter>
                 <action android:name="edu.umd.cmsc436.balance.action.HELP" />
                 <action android:name="edu.umd.cmsc436.balance.action.HISTORY" />

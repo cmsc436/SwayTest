@@ -56,7 +56,7 @@ public class DisplayImages {
 
     // Initialize the presets
     final int BITMAP_SIZE = 900;
-    final float ACCELERATION_LIMIT = 4.5f; //max accle before someone falls
+    final float ACCELERATION_LIMIT = 2.8f; //max accle before someone falls
     final float CONSTANT = (BITMAP_SIZE/2) / ACCELERATION_LIMIT;
 
     //Regions of points
