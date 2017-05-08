@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sway</string>
+    <string name="app_name">Balance</string>
     <string name="measurement_service_handler_name">cmsc436.umd.edu.measurement_service_handler</string>
     <string name="test_instr">Hello, and again, welcome to the Aperture Science Enrichment Center.
         We are currently experiencing technical difficulties due to circumstances of potentially

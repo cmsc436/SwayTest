@@ -1,11 +1,50 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="ToolbarTheme" parent="Widget.AppCompat.Toolbar">
+        <item name="android:textAppearance">@style/ToolbarTheme.Title</item>
+
+        <!-- android:textColorPrimary is the color of the title text in the Toolbar  -->
+        <!--<item name="android:textColorPrimary">@android:color/white</item>-->
+
+        <!-- actionMenuTextColor is the color of the text of action (menu) items  -->
+        <!--<item name="actionMenuTextColor">@android:color/white</item>-->
+
+    </style>
+
+    <!-- This configures the styles for the title within the Toolbar  -->
+    <style name="ToolbarTheme.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@android:color/white</item>>
+        <item name="android:textSize">38sp</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.FontPath" parent="android:TextAppearance">
+        <!--<item name="fontPath">fonts/Raleway-SemiBold.ttf</item>-->
+        <item name="fontPath">fonts/Raleway-Regular.ttf</item>
+    </style>
+
+    <style name="test" >
+        <!--<item name="fontPath">fonts/Raleway-SemiBold.ttf</item>-->
+        <item name="android:textColor">@android:color/white</item>
+        <item name="fontPath">fonts/Raleway-Regular.ttf</item>
+    </style>
+
+    <style name="AppBar" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@android:color/white</item>>
+        <item name="android:textSize">38sp</item>
+        <!--<item name="android:textStyle">bold</item>-->
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+
 
 </resources>

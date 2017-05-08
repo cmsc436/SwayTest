@@ -20,11 +20,11 @@ import android.speech.tts.Voice;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +38,7 @@ import java.util.Locale;
 
 import edu.umd.cmsc436.frontendhelper.TrialMode;
 import edu.umd.cmsc436.sheets.Sheets;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class SwayMain extends AppCompatActivity {
 
@@ -113,11 +114,26 @@ public class SwayMain extends AppCompatActivity {
     TextToSpeech tts; //Text to Speech Main Object
     Bundle ttsParams; // TTS Bundle used to ID Utterances
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.action_menu, menu);
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
+        //CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        //Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/Raleway-Regular.ttf");
+        //Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/Raleway-SemiBold.ttf");
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
+
 
         Log.d(MD,"------------------- ON CREATE ");
         Collections.addAll(RETURN_KEY_PHRASE, RET);
@@ -185,7 +201,7 @@ public class SwayMain extends AppCompatActivity {
         builder.setMessage("Alert message to be shown");
         final AlertDialog instrDialog = builder.create();*/
 
-        ImageButton instrButton = (ImageButton) findViewById(R.id.instr_button);
+        /*ImageButton instrButton = (ImageButton) findViewById(R.id.instr_button);
         instrButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -193,7 +209,7 @@ public class SwayMain extends AppCompatActivity {
                 startActivity(instructionsIntent);
                 finish();
             }
-        });
+        });*/
 
     }
 
@@ -257,6 +273,11 @@ public class SwayMain extends AppCompatActivity {
         Log.e("SWAY_MAIN_AC_RESULT","DATA: "+data.getFloatExtra(TrialMode.KEY_SCORE,-1));
         setResult(resultCode,data);
         finish();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
     public void initializeTestingProcedure(){

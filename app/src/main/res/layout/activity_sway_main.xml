@@ -1,47 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_sway_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="cmsc436.umd.edu.sway.SwayMain">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="BALANCE"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display3"
-        android:textSize="63sp"
-        android:textStyle="bold" />
+    <include layout="@layout/appbar" />
 
-    <TextView
-        android:id="@+id/sway_text"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <!-- android:background="@drawable/ic_balance_person"-->
+        <!--<TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="BALANCE"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+            android:textSize="63sp"
+            android:textStyle="bold" />-->
+
+        <TextView
+            android:id="@+id/sway_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="11dp"
+            android:text="Press Get Started"
+            android:textAppearance="@style/TextAppearance.FontPath"
+            android:textSize="43dp" />
+
+        <!--<TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@id/sway_text"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="11dp"
+
+            android:text="BALANCE"
+            android:textAppearance="@style/TextAppearance.FontPath"
+            android:textSize="43dp" />-->
+
+
+        <!--<Button
+            android:id="@+id/instr_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="10dp"
+            android:text="Instructions" />-->
+
+        <!--<ImageButton
+            android:id="@+id/instr_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/help_button" />-->
+
+
+    </RelativeLayout>
+
+    <!--<android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="11dp"
-        android:text="Press Get Started"
-        android:textSize="43dp"/>
-
-    <!--<Button
-        android:id="@+id/instr_button"
-        android:layout_width="wrap_content"
+        android:layout_marginBottom="158dp"
+        android:layout_marginStart="17dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:textAlignment="center"
+        android:theme="?attr/actionBarTheme"
+        app:logo="@drawable/help_icon_down"
+        app:title="no"
+        app:titleTextAppearance="@style/TextAppearance.AppCompat.Display2"
+        app:titleTextColor="red" />-->
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="10dp"
-        android:text="Instructions" />-->
-
-    <ImageButton
-        android:id="@+id/instr_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/help_button"/>
+        app:itemBackground="@color/colorPrimary"
+        app:itemIconTint="@android:color/white"
+        app:itemTextColor="@android:color/white"
+        app:menu="@menu/action_menu" />
 </RelativeLayout>
