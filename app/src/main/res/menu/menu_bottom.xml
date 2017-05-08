@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">>
 
-    <!-- "Mark Favorite", should appear as action button if possible -->
-
-
-    <!--<item
+    <item
         android:id="@+id/home"
         android:icon="@drawable/ic_arrow_back_white_48px"
         android:title="Back"
-        app:showAsAction="ifRoom"/>-->
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_help"
@@ -17,10 +14,9 @@
         android:title="Help"
         app:showAsAction="ifRoom"/>
 
-    <!--<item
+    <item
         android:id="@+id/action_replay"
         android:icon="@drawable/ic_replay"
         android:title="Replay"
-        app:showAsAction="ifRoom"/>-->
-
+        app:showAsAction="ifRoom"/>
 </menu>

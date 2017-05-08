@@ -8,27 +8,27 @@
 
     <!--triangle-->
     <path
-        android:strokeColor="@color/colorPrimaryDark436"
+        android:strokeColor="@color/colorPrimary436"
         android:strokeWidth="4"
         android:strokeMiterLimit="10"
         android:pathData="M155.3,204.2 L174.9,251.2 L135.6,251.2 L155.3,204.2 Z" />
 
     <!--head-->
     <path
-        android:strokeColor="@color/colorPrimaryDark436"
+        android:strokeColor="@color/colorPrimary436"
         android:strokeWidth="4"
         android:pathData="M159,48 C144.3,48,144.3,70.9,159,70.9 S173.7,48,159,48 Z" />
 
     <!--beam-->
     <path
-        android:strokeColor="@color/colorPrimaryDark436"
+        android:strokeColor="@color/colorPrimary436"
         android:strokeWidth="4"
         android:strokeMiterLimit="10"
         android:pathData="M65.4,201.7 L67.7,213.6 L234.1,178.8 L232.4,166.9 L65.4,201.7"/>
 
 
     <path
-        android:strokeColor="@color/colorPrimaryDark436"
+        android:strokeColor="@color/colorPrimary436"
         android:strokeWidth="4"
         android:pathData="M191.9,104.8 C189.1,103.2,186.3,101.6,183.4,100.2
 C181.1,99.1,177.1,98.4,175.2,96.7 C173.3,94.9,172.3,91.3,171.2,89

@@ -19,13 +19,13 @@ import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -81,7 +81,7 @@ public class SwayMain extends AppCompatActivity {
 
 
     /*************** BOOK KEEPING VARS ***************/
-    TextView textView; // for updating the what the app is doing
+    //TextView textView; // for updating the what the app is doing
     Bitmap bitmapMain; // do i need this?
     boolean isDone;// is the test done
 
@@ -130,7 +130,14 @@ public class SwayMain extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ActionBar actionBar = getSupportActionBar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        //actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_48px);
+        //actionBar.setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
 
@@ -158,7 +165,7 @@ public class SwayMain extends AppCompatActivity {
         if(message == TextToSpeech.ERROR) Toast.makeText(this,"PROBLEM SETTING UTTRANCE ",Toast.LENGTH_LONG).show();
 
 
-        textView = (TextView) findViewById(R.id.sway_text);
+        //textView = (TextView) findViewById(R.id.sway_text);
         getPermission();
 
         //////////////////////////////////////////////////////////////////
@@ -283,7 +290,7 @@ public class SwayMain extends AppCompatActivity {
     public void initializeTestingProcedure(){
         Log.d(MD,"initializeTestingProcedure");
         tts.stop();
-        textView.setText("Test Starting");
+        //textView.setText("Test Starting");
     }
 
 
@@ -336,13 +343,13 @@ public class SwayMain extends AppCompatActivity {
                 if(result==TextToSpeech.LANG_MISSING_DATA ||
                         result==TextToSpeech.LANG_NOT_SUPPORTED){
                     Log.e("TTS", "This Language is not supported");
-                    textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
+                    //textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
                 }else{
                     speakText(currentTest);
                 }
 
             }else {
-                textView.setText("TEXT-TO-SPEECH IS NOT SUPPORTED, DO TWO FINGER DOUBLE TAP TO START");
+                //textView.setText("TEXT-TO-SPEECH IS NOT SUPPORTED, DO TWO FINGER DOUBLE TAP TO START");
                 Log.e("TTS", "TTS FAILED");
             }
 
@@ -405,7 +412,7 @@ public class SwayMain extends AppCompatActivity {
         public void onTick(long millisUntilFinished) {
             Log.d(MD+LN,"CountDownTimer - onTick - PRE");
 
-            textView.setText("PRETEST(DB): "+millisUntilFinished/1000);
+            //textView.setText("PRETEST(DB): "+millisUntilFinished/1000);
         }
 
         @Override
@@ -424,13 +431,13 @@ public class SwayMain extends AppCompatActivity {
         @Override
         public void onTick(long millisUntilFinished) {
             Log.d(MD+LN,"CountDownTimer - onTick - DURING");
-            textView.setText("TESTING(DB): "+millisUntilFinished/1000);
+            //textView.setText("TESTING(DB): "+millisUntilFinished/1000);
         }
 
         @Override
         public void onFinish() {
             Log.d(MD+LN,"CountDownTimer - onFinish - DURING");
-            textView.setText("TEST DONE");
+            //textView.setText("TEST DONE");
             // stops recording the data
             measurementService.stopReading();
             // now you can call measurementService.getDataList()
