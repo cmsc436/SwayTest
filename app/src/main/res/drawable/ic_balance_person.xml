@@ -17,7 +17,7 @@
         android:strokeMiterLimit="10"
         android:pathData="M 67.2 207.6 L 233.4 172.7" />
     <path
-        android:fillColor="@color/colorPrimary436"
+        android:fillColor="@color/colorAccentLight436"
         android:pathData="M159,48c-14.7,0-14.7,22.9,0,22.9S173.7,48,159,48z" />
     <path
         android:fillColor="@color/colorAccentLight436"
