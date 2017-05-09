@@ -191,7 +191,6 @@ public class SwayMain extends AppCompatActivity {
         ttsParams.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"1");// setting up KV pair
         // there have been time then the listener is not set up correctly, it is device specific
         int message =  tts.setOnUtteranceProgressListener(utteranceProgressListener);
-        if(message == TextToSpeech.ERROR) Toast.makeText(this,"PROBLEM SETTING UTTRANCE ",Toast.LENGTH_LONG).show();
 
 
         textView = (TextView) findViewById(R.id.sway_main_text);
@@ -205,6 +204,7 @@ public class SwayMain extends AppCompatActivity {
         currentTest = TrialMode.getAppendage(currentIntent); // sets up the current Test Type
         isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
 
+        Toast.makeText(this,"TEST: "+currentTest,Toast.LENGTH_LONG).show();
         if(isTrial){
             trialNumber = TrialMode.getTrialOutOf(currentIntent);
             currentTrial = TrialMode.getTrialNum(currentIntent);
@@ -259,6 +259,19 @@ public class SwayMain extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        currentIntent = getIntent(); // gets the intent to be used to access all of the variables
+
+        currentTest = TrialMode.getAppendage(currentIntent); // sets up the current Test Type
+        isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
+
+
+        if(isTrial){
+            Log.e("IS TRIAL", "NOT IN TRIAL");
+            trialNumber = TrialMode.getTrialOutOf(currentIntent);
+            currentTrial = TrialMode.getTrialNum(currentIntent);
+            Info.setTestType(currentTest);
+            Info.setUserId(TrialMode.getPatientId(currentIntent));
+        }
         Log.d(MD,"-------------------onStart");
         bindService(
                 new Intent(this,MeasurementService.class),
@@ -341,7 +354,6 @@ public class SwayMain extends AppCompatActivity {
     BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Toast.makeText(SwayMain.this,getResources().getResourceEntryName(item.getItemId())+"",Toast.LENGTH_LONG).show();
             switch (item.getItemId()){
                 case R.id.home:
                     onBackPressed();
@@ -359,7 +371,6 @@ public class SwayMain extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Toast.makeText(this,getResources().getResourceEntryName(item.getItemId())+"",Toast.LENGTH_LONG).show();
         switch (item.getItemId()){
             case R.id.action_help:
                 startInstruction();
@@ -369,8 +380,8 @@ public class SwayMain extends AppCompatActivity {
     }
 
     private void startInstruction(){
-        final Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
-        instructionsIntent.putExtras(currentIntent);
+        Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
+        if(isTrial)instructionsIntent.putExtras(currentIntent.getExtras());
         instructionsIntent.setAction(currentIntent.getAction());
         startActivity(instructionsIntent);
         instructionsCalled = true;
@@ -410,16 +421,34 @@ public class SwayMain extends AppCompatActivity {
         Log.d(MD,"speakText");
         if (!isTrial)
             tts.speak(getString(R.string.test_instr_practice), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
-        else if (t == Sheets.TestType.SWAY_OPEN_APART)
-            tts.speak(getString(R.string.test_instr_1), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
-        else if (t == Sheets.TestType.SWAY_OPEN_TOGETHER)
-            tts.speak(getString(R.string.test_instr_2), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
-        else if (t == Sheets.TestType.SWAY_CLOSED)
-            tts.speak(getString(R.string.test_instr_3), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
-        else{
-            tts.speak("DOUBLE TAP TO START THE TEST", TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
 
+        else {
+            switch (t) {
+                case SWAY_OPEN_APART:
+                    tts.speak(getString(R.string.test_instr_1), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    break;
+                case SWAY_OPEN_TOGETHER:
+                    tts.speak(getString(R.string.test_instr_2), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    break;
+                case SWAY_CLOSED:
+                    tts.speak(getString(R.string.test_instr_3), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    break;
+                default:
+                    tts.speak("TO START THE TEST. DOUBLE TAP. OR SAY. GO. ", TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    break;
+
+            }
         }
+//        else if (t == Sheets.TestType.SWAY_OPEN_APART)
+//            tts.speak(getString(R.string.test_instr_1), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+//        else if (t == Sheets.TestType.SWAY_OPEN_TOGETHER)
+//            tts.speak(getString(R.string.test_instr_2), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+//        else if (t == Sheets.TestType.SWAY_CLOSED)
+//            tts.speak(getString(R.string.test_instr_3), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+//        else{
+//            tts.speak("DOUBLE TAP TO START THE TEST", TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+//
+//        }
 
 
     }

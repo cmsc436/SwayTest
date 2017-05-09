@@ -93,8 +93,8 @@ public class DisplayImages {
 
         // Determine the regions of points
         regions = new Region[BITMAP_SIZE/H][BITMAP_SIZE/H]; // MAke H*H later?
-        for(int y = 0; y < (int)BITMAP_SIZE/H; y++){
-            for(int x = 0; x < (int)BITMAP_SIZE/H; x++){
+        for(int y = 0; y < BITMAP_SIZE /H; y++){
+            for(int x = 0; x < BITMAP_SIZE /H; x++){
                 regions[x][y] = new Region(x*H,y*H,(x+1)*H,(y+1)*H);
             }
         }
@@ -107,8 +107,8 @@ public class DisplayImages {
          * Note: The params:
          *  - drawRect(X_on_Left,Y_on_Top,X_on_Right,Y_on_Bottom,paint)
         */
-        for(int y = 0; y < (int)BITMAP_SIZE/H; y++){
-            for(int x = 0; x < (int)BITMAP_SIZE/H; x++){
+        for(int y = 0; y < BITMAP_SIZE /H; y++){
+            for(int x = 0; x < BITMAP_SIZE /H; x++){
                 // Get the count
                 double count = (quadrantCount[x][y]);
                 // Setting up the heat
@@ -139,8 +139,8 @@ public class DisplayImages {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(5);
         paint.setColor(Color.BLACK);
-        for(int y = 0; y < (int)BITMAP_SIZE/H; y++){
-            for(int x = 0; x < (int)BITMAP_SIZE/H; x++){
+        for(int y = 0; y < BITMAP_SIZE /H; y++){
+            for(int x = 0; x < BITMAP_SIZE /H; x++){
                 canvas.drawRect(x*H,y*H,(x+1)*H,(y+1)*H,paint);
             }
         }
@@ -261,7 +261,7 @@ public class DisplayImages {
     }
 
     public float getStdDevBetweenPoint(){
-        return (float) getStdDevBetweenPoint(getVarianceFromCenter());
+        return getStdDevBetweenPoint(getVarianceFromCenter());
     }
 
     public float getAverageFromCenter(){
@@ -305,7 +305,7 @@ public class DisplayImages {
 
     // Iterate the list of XY points and determine its quadrant
     private int[][] countQuadrant(List<MeasurementService.DataPoint> list, int H){
-        int[][] quadrantsCounts = new int[(int)BITMAP_SIZE/H][(int)BITMAP_SIZE/H];
+        int[][] quadrantsCounts = new int[BITMAP_SIZE /H][BITMAP_SIZE /H];
         float[] transXY;
         transXY = getTranslationVector(center.getX(),center.getY(),BITMAP_SIZE, BITMAP_SIZE, CONSTANT);
 
@@ -356,8 +356,8 @@ public class DisplayImages {
     // Function to determine to region of a specific point, return null if none
     private int[] determineRegion(int X, int Y ,int H){
         int[] quadrantPoint = new int[2];
-        for(int y = 0; y < (int)BITMAP_SIZE/H; y++){
-            for(int x = 0; x < (int)BITMAP_SIZE/H; x++){
+        for(int y = 0; y < BITMAP_SIZE /H; y++){
+            for(int x = 0; x < BITMAP_SIZE /H; x++){
                 Region reg = regions[x][y];
                 if (X >= reg.leftX && X <= reg.rightX && Y >= reg.topY && Y <= reg.bottomY){
                     quadrantPoint[0] = x;
