@@ -38,6 +38,8 @@
     <string name="text_with_paras">Instructions: You need to have eyes closed and\n legs opened</string>
     <string name="tts_testing_done">Testing. Done</string>
     <string name="sway_tts_start_instr">To Start the test. Double Tap With Two Fingers. Or Say. GO. When Beeping</string>
+    <string name="sway_main_testing">Testing</string>
+    <string name="sway_main_test_done">Testing Done</string>
 
     <string-array name="instruction_overview">
         <item>Instructions</item>

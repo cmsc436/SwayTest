@@ -98,7 +98,7 @@ public class SwayMain extends AppCompatActivity {
 
 
     /*************** BOOK KEEPING VARS ***************/
-    //TextView textView; // for updating the what the app is doing
+    TextView textView; // for updating the what the app is doing
     Bitmap bitmapMain; // do i need this?
     boolean isDone;// is the test done
 
@@ -194,7 +194,7 @@ public class SwayMain extends AppCompatActivity {
         if(message == TextToSpeech.ERROR) Toast.makeText(this,"PROBLEM SETTING UTTRANCE ",Toast.LENGTH_LONG).show();
 
 
-        //textView = (TextView) findViewById(R.id.sway_text);
+        textView = (TextView) findViewById(R.id.sway_main_text);
         getPermission();
 
         //////////////////////////////////////////////////////////////////
@@ -478,6 +478,7 @@ public class SwayMain extends AppCompatActivity {
                     @Override
                     public void run() {
                         Log.e("STARTING", "Staring Preest");
+                        textView.setText(R.string.sway_main_testing);
                         preTest.start();
                         isDoubleTapped = true;
                     }
@@ -512,6 +513,7 @@ public class SwayMain extends AppCompatActivity {
         @Override
         public void onTick(long millisUntilFinished) {
             Log.d(MD+LN,"CountDownTimer - onTick - PRE");
+            //XDR
 
             //textView.setText("PRETEST(DB): "+millisUntilFinished/1000);
         }
@@ -544,6 +546,7 @@ public class SwayMain extends AppCompatActivity {
     };
 
     private void testDone(){
+        textView.setText(R.string.sway_main_test_done);
         // stops recording the data
         measurementService.stopReading();
         // now you can call measurementService.getDataList()
