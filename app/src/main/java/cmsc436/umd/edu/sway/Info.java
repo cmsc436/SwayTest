@@ -9,8 +9,8 @@ import edu.umd.cmsc436.sheets.Sheets;
 public class Info {
 
     final static String MAIN_SPREADSHEET_ID = "1YvI3CjS4ZlZQDYi5PaiA7WGGcoCsZfLoSFM0IdvdbDU";
-    final static String PRIVATE_SPREADSHEET_ID = "1otFtLXPcvSGhkduMjdBYNDNM7JytDK5ISLi9KgGWUHE";
-    final static String FOLDER_ID = "0B21g-Kd0CHS7YUp6c3RFWWdzclE";
+    final static String PRIVATE_SPREADSHEET_ID = "1QpNEBq2ixxrdaDCFg4YrsAZXV9qP5BSuzyHHw82zSog";
+    final static String FOLDER_ID = "0BymPSywiUM4aUmdsaEh0TVRRQmM";
     final static String FILE_NAME = "BALANCE_";
     final static String FILE_PICTURE_MOTION ="MOTION_";
     final static String FILE_PICTIURE_HEATMAP = "HEATMAP_";

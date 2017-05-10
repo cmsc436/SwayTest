@@ -4,17 +4,17 @@
     android:id="@+id/activity_display_result"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="cmsc436.umd.edu.sway.DisplayResult">
+    tools:context="cmsc436.umd.edu.sway.DisplayResult"
+    android:animateLayoutChanges="true">
+    <include layout="@layout/appbar_result" android:id="@+id/appbar_layout_result"/>
+
 
     <ImageView
         android:id="@+id/sway_result_image_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/appbar_layout_result"
         android:layout_above="@+id/sway_result_linear_layout"
         android:visibility="invisible"/>
 
@@ -23,6 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:gravity="center"
         android:textSize="36sp"
         android:visibility="invisible" />
 
@@ -37,6 +38,7 @@
             android:id="@+id/sway_display_result_radio_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <RadioButton
@@ -61,7 +63,8 @@
             android:text="Done"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/back_button"/>
+            android:id="@+id/back_button"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
 
     </LinearLayout>
     <!--<Button-->

@@ -104,6 +104,7 @@ public class DisplayResult extends AppCompatActivity {
         i.putExtra(TrialMode.KEY_SCORE,final_score);
         setResult(RESULT_OK,i);
         finish();
+        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
     }
 
     @Override
@@ -129,15 +130,17 @@ public class DisplayResult extends AppCompatActivity {
     }
 
     private void showHeatMap(){
-        imageView.setImageBitmap(bmp_heat_map);
+        imageView.setVisibility(View.INVISIBLE); // to animate the transition
         viewScore.setVisibility(View.INVISIBLE);
         imageView.setVisibility(View.VISIBLE);
+        imageView.setImageBitmap(bmp_heat_map);
     }
 
     private void showPathMap(){
-        imageView.setImageBitmap(bmp_path);
+        imageView.setVisibility(View.INVISIBLE); // to animate the transition
         viewScore.setVisibility(View.INVISIBLE);
         imageView.setVisibility(View.VISIBLE);
+        imageView.setImageBitmap(bmp_path);
     }
 
     // part of the Sheet API, it piggybacks on the
