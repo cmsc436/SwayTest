@@ -17,19 +17,9 @@ import java.util.Set;
 
 /**
  * Created by Glorious csalaman on 4/27/2017.
+ * All of the analysis of the data is done here
  */
 
-/**
- * TO-DO:
- *  - Must create buckets which contains the counts of repeated quadrant counts:
- *      - # of buckets = # of shades
- *
- *
- * - Average
- *
- *
- *
- */
 
 public class DisplayImages {
 
@@ -237,6 +227,10 @@ public class DisplayImages {
         return distance;
     }
 
+    //////////////////////////////////
+    //              Raw Data
+    //////////////////////////////////
+
     // Average point between points
     public float getAverageBetweenPoint(){
        return getMetric()/list.size();
@@ -302,6 +296,7 @@ public class DisplayImages {
                         Math.pow(a.getY() - b.getY(),2)
         );
     }
+
 
     // Iterate the list of XY points and determine its quadrant
     private int[][] countQuadrant(List<MeasurementService.DataPoint> list, int H){

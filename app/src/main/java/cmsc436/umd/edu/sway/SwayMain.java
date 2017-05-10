@@ -85,14 +85,6 @@ public class SwayMain extends AppCompatActivity {
     final static String STD_DEV_BW_POINTS = "STD_DEV_BW_POINTS";
     final static String STD_DEV_FR_CENTER = "STD_DEV_FR_CENTER";
     final static String TRIAL_NUM = "TRIAL_COUNT";
-    final static String TEST_TYPE = "TEST_TPE";
-    final static String USER_ID = "USER_ID";
-
-    private final static String SHARED_PREF_ID = "com.umd.cmsc436.sway.SHARED_PREF";
-    private final static String SHARED_PREf_HEIGHT_ID = "com.umd.cmsc436.sway.SHARED_PREF.height";
-
-    static float HEIGHT;
-
 
 
     /*************** SERVICE FOR GETTING READING***************/
@@ -103,13 +95,13 @@ public class SwayMain extends AppCompatActivity {
 
     /*************** BOOK KEEPING VARS ***************/
     TextView textView; // for updating the what the app is doing
-    Bitmap bitmapMain; // do i need this?
     boolean isDone;// is the test done
 
     float finalScore; // what the metric outputs
     boolean isDoubleTapped = false; // was there a double tap
     boolean instructionsCalled = false; // where instructions called
 
+    // arc animation
     DecoView arcView;
     int arcAnimationIndex;
 
@@ -128,7 +120,6 @@ public class SwayMain extends AppCompatActivity {
     /***************Speech Recognition***************/
     SpeechRecognizer speechRecognizer; // main object
     Intent speechRecogIntent; // intent that defines the recognition
-    boolean isListening; // is it currently listening
 
     // key Phrases
     HashSet<String> RETURN_KEY_PHRASE = new HashSet<>();
@@ -139,6 +130,9 @@ public class SwayMain extends AppCompatActivity {
     /*************** TEXT TO SPEECH ***************/
     TextToSpeech tts; //Text to Speech Main Object
     Bundle ttsParams; // TTS Bundle used to ID Utterances
+    final static String INITIAL_TTS_SPEECH_ID = "1";
+    final static String INTERMEDIATE_TTS_SPEECH_ID = "2";
+    final static String ENDING_TTS_SPEECH_ID = "3";
 
 
 
@@ -161,40 +155,53 @@ public class SwayMain extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sway_main);
-        //CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        //Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/Raleway-Regular.ttf");
-        //Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/Raleway-SemiBold.ttf");
 
+        //////////////////////////////////////////////////////////////////
+        //                       SETTING CLASS VARIABLES                //
+        //////////////////////////////////////////////////////////////////
+
+        // top toolbar, had the help icon as well
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // bottom action bar, has back, instruction and spoken instructions
         ActionBar actionBar = getSupportActionBar();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        //actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        // setting the listner for back
         ((BottomNavigationView) findViewById(R.id.bottom_navigation))
                 .setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
         // progress arc
         arcView = (DecoView) findViewById(R.id.sway_main_deco_view);
 
-
+        // phrases that will start the test
         Log.d(MD,"------------------- ON CREATE ");
-        Collections.addAll(RETURN_KEY_PHRASE, RET);
-        Collections.addAll(CONTINUE_KEY_PHRASE,CONT);
         isDone = false;
 
-        HEIGHT = getSharedPreferences(SHARED_PREF_ID, MODE_PRIVATE)
-                .getFloat(SHARED_PREf_HEIGHT_ID,-1);
+        // text view that will say: Start Test, Testing and Done
+        textView = (TextView) findViewById(R.id.sway_main_text);
+        getPermission(); // acquiring permissions for recording the audio for Voice Recognition
 
-        if(HEIGHT == -1) promptForHeight();
-        Log.d("HEIGHT",HEIGHT+"");
+        currentIntent = getIntent(); // gets the intent to be used to access all of the variables
+        currentTest = TrialMode.getAppendage(currentIntent); // sets up the current Test Type
+        isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
+
+        // If we are in Trail Mode, initialize the appropriate variables
+        if(isTrial){
+            trialNumber = TrialMode.getTrialOutOf(currentIntent);
+            currentTrial = TrialMode.getTrialNum(currentIntent);
+            Info.setTestType(currentTest);
+            Info.setUserId(TrialMode.getPatientId(currentIntent));
+        }
+
 
         //////////////////////////////////////////////////////////////////
         //                              TTS                             //
         //////////////////////////////////////////////////////////////////
-        tts = new TextToSpeech(this,onInitListener); // Responsible for "Talking:
+        tts = new TextToSpeech(this,onInitListener); // Responsible for "Talking"
+
+        // adjusting the voice quality
         tts.setVoice(new Voice(
                 "Main",
                 Locale.getDefault(),
@@ -203,29 +210,12 @@ public class SwayMain extends AppCompatActivity {
                 false,
                 new HashSet<String>()));
         ttsParams = new Bundle(); // the Bundle used by TTS to recognize its Engine's Utterance
-        ttsParams.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"1");// setting up KV pair
-        // there have been time then the listener is not set up correctly, it is device specific
+        ttsParams.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,INITIAL_TTS_SPEECH_ID);// setting up KV pair
+
+        // setting the Progress listner, so certain speech start correct part of the app
         tts.setOnUtteranceProgressListener(utteranceProgressListener);
 
 
-        textView = (TextView) findViewById(R.id.sway_main_text);
-        getPermission();
-
-        //////////////////////////////////////////////////////////////////
-        //                       SETTING CLASS VARIABLES                //
-        //////////////////////////////////////////////////////////////////
-        currentIntent = getIntent(); // gets the intent to be used to access all of the variables
-
-        currentTest = TrialMode.getAppendage(currentIntent); // sets up the current Test Type
-        isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
-
-        Toast.makeText(this,"TEST: "+currentTest,Toast.LENGTH_LONG).show();
-        if(isTrial){
-            trialNumber = TrialMode.getTrialOutOf(currentIntent);
-            currentTrial = TrialMode.getTrialNum(currentIntent);
-            Info.setTestType(currentTest);
-            Info.setUserId(TrialMode.getPatientId(currentIntent));
-        }
 
         //////////////////////////////////////////////////////////////
         //                     SPEECH RECOGNITION (SR)              //
@@ -235,28 +225,28 @@ public class SwayMain extends AppCompatActivity {
         speechRecogIntent = getSpeechRecognitionIntent(); // intent used for SR
         speechRecognizer.setRecognitionListener(new SpeechRecognitionListener()); // Listener to react to when speech
 //        speechRecognizer.setRecognitionListener(recognitionListener); // Listener to react to when speech
+        Collections.addAll(RETURN_KEY_PHRASE, RET);
+        Collections.addAll(CONTINUE_KEY_PHRASE,CONT);
 
     }
 
-
-    // binding the service to the activity
     @Override
     protected void onStart() {
         super.onStart();
-        currentIntent = getIntent(); // gets the intent to be used to access all of the variables
-
-        currentTest = TrialMode.getAppendage(currentIntent); // sets up the current Test Type
-        isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
-
-
-        if(isTrial){
-            Log.e("IS TRIAL", "NOT IN TRIAL");
-            trialNumber = TrialMode.getTrialOutOf(currentIntent);
-            currentTrial = TrialMode.getTrialNum(currentIntent);
-            Info.setTestType(currentTest);
-            Info.setUserId(TrialMode.getPatientId(currentIntent));
-        }
+//        currentIntent = getIntent(); // gets the intent to be used to access all of the variables
+//        currentTest = TrialMode.getAppendage(currentIntent); // sets up the current Test Type
+//        isTrial = (currentTest != null); // if current test is null then this is PRACTICE mode else it is TRIAL mode
+//
+//
+//        if(isTrial){
+//            Log.e("IS TRIAL", "NOT IN TRIAL");
+//            trialNumber = TrialMode.getTrialOutOf(currentIntent);
+//            currentTrial = TrialMode.getTrialNum(currentIntent);
+//            Info.setTestType(currentTest);
+//            Info.setUserId(TrialMode.getPatientId(currentIntent));
+//        }
         Log.d(MD,"-------------------onStart");
+        // binding the measurements service to the activity
         bindService(
                 new Intent(this,MeasurementService.class),
                 serviceConnection,
@@ -266,20 +256,37 @@ public class SwayMain extends AppCompatActivity {
 
     }
 
+    /*
+        Here majority of the callback procedure will start
+     */
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(MD,"-------------------onResume");
+        // if we come from instructions activity, restart the initial TTS phrase
         if(!isDone)initializeTestingProcedure();
         if(instructionsCalled){
-            tts.speak(getString(R.string.sway_tts_start_instr),TextToSpeech.QUEUE_ADD,ttsParams,"1");
-        }
+            tts.speak(getString(R.string.sway_tts_start_instr),
+                    TextToSpeech.QUEUE_ADD,
+                    ttsParams,
+                    INITIAL_TTS_SPEECH_ID);
 
+            textView.setText("Start Test");
+        }
+        // setup the progress arc and the animations for it
         initArc();
         initAnimation();
 
     }
 
+
+    /*
+        If the activity is paused,
+        meaning another activity has take the foreground then:
+        -> reset the doubleTap indicator, so the user can double tap again
+        -> stop TTS from taking
+        -> stop the counters
+     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -289,7 +296,11 @@ public class SwayMain extends AppCompatActivity {
         duringTest.cancel();
     }
 
-    //unbinding the activity to the service
+    /*
+        Upon destruction fof the activity:
+        -> service will unbind
+        -> TTS and Speech Recognizer will be shutdown
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -299,6 +310,10 @@ public class SwayMain extends AppCompatActivity {
         if(speechRecognizer != null) speechRecognizer.destroy();
     }
 
+    /*
+        If the back button is pressed, and the test is not done,
+        the activity will close with RESULT_CANCELED
+     */
     @Override
     public void onBackPressed() {
         Log.d(MD,"-------------------onBackPressed");
@@ -311,6 +326,11 @@ public class SwayMain extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    /*
+        When the result from DisplayResult.java is triggered,
+        this just piggy backs the data back to Front End Team.
+        The result code for finishing will be the same as that of Display Result.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(MD,"-------------------onActivityResult");
@@ -321,16 +341,16 @@ public class SwayMain extends AppCompatActivity {
     }
 
 
-
+    // setting whe all text to this font
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
+    // any of the booking keeping (if needed) goes here
     public void initializeTestingProcedure(){
         Log.d(MD,"initializeTestingProcedure");
         tts.stop();
-
         //textView.setText("Test Starting");
     }
 
@@ -338,13 +358,12 @@ public class SwayMain extends AppCompatActivity {
      *                                      Arc Animation
      **********************************************************************************************/
 
+    // setting the background and foreground arc colors and width
     private void initArc(){
-
         // Create background track
         arcView.addSeries(new SeriesItem.Builder(Color.argb(255, 218, 218, 218))
                 .setRange(0, 100, 100)
                 .setInitialVisibility(false)
-//                .setInitialVisibility(true)
                 .setLineWidth(32)
                 .build());
 
@@ -353,10 +372,11 @@ public class SwayMain extends AppCompatActivity {
                 .setRange(0, PRETEST_DURATION+TEST_DURATION, 0)
                 .setLineWidth(32f)
                 .build();
-
+        // index to refer to the foreground arc for
         arcAnimationIndex = arcView.addSeries(seriesItem1);
     }
 
+    // opening animation, when the acr popes up
     private void initAnimation(){
         arcView.addEvent(new DecoEvent.Builder(DecoEvent.EventType.EVENT_SHOW, true)
                 .setDelay(500)
@@ -364,6 +384,7 @@ public class SwayMain extends AppCompatActivity {
                 .build());
     }
 
+    // updating the acr animations, increasing (or decreasing) the values of front arc
     private void animateArc(float f){
         arcView.addEvent(new DecoEvent.Builder(f).setIndex(arcAnimationIndex).setDelay(0).build());
 
@@ -374,6 +395,7 @@ public class SwayMain extends AppCompatActivity {
      *                                      MENU
      **********************************************************************************************/
 
+    // Listener for main actions done by the bottom navigation bar
     BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -385,13 +407,14 @@ public class SwayMain extends AppCompatActivity {
                     startInstruction();
                     return true;
                 case R.id.action_replay:
-                    speakTextInstruction(currentTest);
+                    speakTextInstruction(currentTest); // TTS for current test will start
                     return true;
             }
             return false;
         }
     };
 
+    // for the top navigation bar, it only has instructions button
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -402,13 +425,14 @@ public class SwayMain extends AppCompatActivity {
         return false;
     }
 
+    // starts the instructions activity,
+    // appropriate addon will be added for the activity to handle
     private void startInstruction(){
         Intent instructionsIntent = new Intent(this, FragmentPagerSupport.class);
         if(isTrial)instructionsIntent.putExtras(currentIntent.getExtras());
         instructionsIntent.setAction(currentIntent.getAction());
         startActivity(instructionsIntent);
         instructionsCalled = true;
-//        finish();
     }
 
 
@@ -443,21 +467,21 @@ public class SwayMain extends AppCompatActivity {
         if(duringTest != null) duringTest.cancel();
         Log.d(MD,"speakText");
         if (!isTrial)
-            tts.speak(getString(R.string.test_instr_practice), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+            tts.speak(getString(R.string.test_instr_practice), TextToSpeech.QUEUE_FLUSH, ttsParams, INITIAL_TTS_SPEECH_ID);
 
         else {
             switch (t) {
                 case SWAY_OPEN_APART:
-                    tts.speak(getString(R.string.test_instr_1), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    tts.speak(getString(R.string.test_instr_1), TextToSpeech.QUEUE_FLUSH, ttsParams, INITIAL_TTS_SPEECH_ID);
                     break;
                 case SWAY_OPEN_TOGETHER:
-                    tts.speak(getString(R.string.test_instr_2), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    tts.speak(getString(R.string.test_instr_2), TextToSpeech.QUEUE_FLUSH, ttsParams, INITIAL_TTS_SPEECH_ID);
                     break;
                 case SWAY_CLOSED:
-                    tts.speak(getString(R.string.test_instr_3), TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    tts.speak(getString(R.string.test_instr_3), TextToSpeech.QUEUE_FLUSH, ttsParams, INITIAL_TTS_SPEECH_ID);
                     break;
                 default:
-                    tts.speak("TO START THE TEST. DOUBLE TAP. OR SAY. GO. ", TextToSpeech.QUEUE_FLUSH, ttsParams, "1");
+                    tts.speak(getString(R.string.test_instr_default), TextToSpeech.QUEUE_FLUSH, ttsParams, INITIAL_TTS_SPEECH_ID);
                     break;
 
             }
@@ -465,6 +489,12 @@ public class SwayMain extends AppCompatActivity {
 
     }
 
+    /*
+        Initialises the TTS, it is a resource intensive process.
+        thus it occurs in a separate thread.
+        That's why initial instructions can will start here.
+        This is also why there is a pause when the activity starts.
+     */
     private TextToSpeech.OnInitListener onInitListener = new TextToSpeech.OnInitListener() {
         @Override
         public void onInit(int status) {
@@ -475,10 +505,17 @@ public class SwayMain extends AppCompatActivity {
                 int result = tts.setLanguage(Locale.US);
                 if(result==TextToSpeech.LANG_MISSING_DATA ||
                         result==TextToSpeech.LANG_NOT_SUPPORTED){
+                    // if there is a Problem with TTS
                     Log.e("TTS", "This Language is not supported");
-                    //textView.setText("YOUR LANGUAGE IS NOT SUPPORTED, PLEASE SWITCH TO ENGLISH");
+                    Toast.makeText(SwayMain.this,
+                            "Language not supported \n Please Swich to English",
+                            Toast.LENGTH_LONG).show();
                 }else{
-                    tts.speak(getString(R.string.sway_tts_start_instr),TextToSpeech.QUEUE_ADD,ttsParams,"1");
+                    // Starting speech, This Starts the whole test
+                    tts.speak(getString(R.string.sway_tts_start_instr),
+                            TextToSpeech.QUEUE_ADD,
+                            ttsParams,
+                            INITIAL_TTS_SPEECH_ID);
                 }
 
             }else {
@@ -488,7 +525,14 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
-    // TODO HANDLE VOICE RECOG WHEN THE INTRO IS GOING
+    /*
+        What to do when the speech is done.
+        If Initial Speech, start the Speech Recognition
+        if Intermediate Speech, start the test
+        If Ending Speech, start the end analysis
+
+        Note, all actions must be ran on the Main UI thread
+     */
     private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
         @Override
         public void onStart(String utteranceId) {
@@ -497,18 +541,18 @@ public class SwayMain extends AppCompatActivity {
         @Override
         public void onDone(String utteranceId) {
             Log.d(MD+LN,"UtteranceProgressListener - onDone");
-            if(utteranceId.equals("1")){
+            if(utteranceId.equals(INITIAL_TTS_SPEECH_ID)){
                 SwayMain.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         speechRecognizer.startListening(speechRecogIntent);
                     }
                 });            }
-            else if(utteranceId.equals("2")) {
+            else if(utteranceId.equals(INTERMEDIATE_TTS_SPEECH_ID)) {
                 SwayMain.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.e("STARTING", "Staring Preest");
+                        Log.e("STARTING", "Staring PreTest");
                         textView.setText(R.string.sway_main_testing);
 
                         preTest.start();
@@ -516,7 +560,7 @@ public class SwayMain extends AppCompatActivity {
                     }
                 });
             }
-            else if(utteranceId.equals("3")){
+            else if(utteranceId.equals(ENDING_TTS_SPEECH_ID)){
                 SwayMain.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -529,11 +573,10 @@ public class SwayMain extends AppCompatActivity {
         @Override
         public void onError(String utteranceId) {
             Log.e(MD+LN,"UtteranceProgressListener - onError: Utterance: "+utteranceId);
-
         }
 
-
     };
+
 
     /***********************************************************************************************
      *                                  COUNT DOWN DEFINITION
@@ -542,13 +585,10 @@ public class SwayMain extends AppCompatActivity {
     // PRETEST used are a wait time, it is just here so the patient
     // is already in the testing position before the starting to take the measurements
     private CountDownTimer preTest = new CountDownTimer(PRETEST_DURATION,PRETEST_INTERVAL) {
-        float time = 0;
+        float time = 0; // to set position of the progress in relation to time passed
         @Override
         public void onTick(long millisUntilFinished) {
-            //arc update
-            animateArc(time+=PRETEST_INTERVAL);
-
-            Log.e("TIMER","MILLS: "+ millisUntilFinished + "  TIME: "+(time)+"");
+            animateArc(time+=PRETEST_INTERVAL);  //arc update
         }
 
         @Override
@@ -560,45 +600,51 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
-    //  This is where the testing will take in to place, here the patient's reading will be recorded
-    //  and analysed. --ON FINISH- IS WHERE THE CORE LOGIC OF THE TEST WILL TAKE PLACE
+    //  This is where the testing will take in to place
     private CountDownTimer duringTest = new CountDownTimer(TEST_DURATION,TEST_INTERVAL) {
         float time = PRETEST_DURATION;
         @Override
         public void onTick(long millisUntilFinished) {
-            animateArc(time+=(TEST_INTERVAL));
-            Log.e("TIMER--","MILLS: "+ millisUntilFinished + "  TIME: "+(time)+"");
-//            Log.d(MD+LN,"CountDownTimer - onTick - DURING");
-            //textView.setText("TESTING(DB): "+millisUntilFinished/1000);
+            animateArc(time+=(TEST_INTERVAL));  // arc update
         }
 
+        // Ending Speech starts,
+        // and then core analysis of the test (in DisplayImages) will take place
         @Override
         public void onFinish() {
-            tts.speak(getString(R.string.tts_testing_done),TextToSpeech.QUEUE_ADD, ttsParams, "3");
+            tts.speak(getString(R.string.tts_testing_done),TextToSpeech.QUEUE_ADD, ttsParams, ENDING_TTS_SPEECH_ID);
             Log.d(MD+LN,"CountDownTimer - onFinish - DURING");
-
         }
     };
 
+    /*
+        Analysis of the Data
+     */
     private void testDone(){
         animateArc(PRETEST_DURATION+TEST_INTERVAL);
-        textView.setText(R.string.sway_main_test_done);
-        // stops recording the data
-        measurementService.stopReading();
+        textView.setText(R.string.sway_main_test_done); // text update
+
+        measurementService.stopReading(); // stop taking reading of the data
         // now you can call measurementService.getDataList()
         // which will return the recorded data
         List<MeasurementService.DataPoint> l = measurementService.getDataList();
-        Log.e("DataCollection", ""+l.size());
+        Log.d("DataCollection", ""+l.size());
 
+        //////////////////////////////////////////////////////////////////////////////////////////
+        //                                 Analysis
+        //////////////////////////////////////////////////////////////////////////////////////////
 
-        // Added the replacement using DisplayImages :: BEGIN
+        // starting the metric object
         DisplayImages visuals = new DisplayImages(l, measurementService.getInitialReading());
-        finalScore = visuals.getMetric();
+
+        finalScore = visuals.getMetric(); // final score for current trial
+
         Intent intent =  new Intent(SwayMain.this,DisplayResult.class); // intent for result class
         intent.putExtra(HEATMAP, compressToByteArray(visuals.getQuadrantAnalysis())); //heat map
         intent.putExtra(PATHMAP, compressToByteArray(visuals.getPath())); // path map
         intent.putExtra(FINAL_SCORE, finalScore); // metric
 
+        // Extra Raw Data Explained in DisplayImages
         float statData = visuals.getAverageBetweenPoint();
         intent.putExtra(AVG_BW_POINTS,statData);
         statData = visuals.getVarianceBetweenPoint(statData);
@@ -612,14 +658,13 @@ public class SwayMain extends AppCompatActivity {
         intent.putExtra(VAR_FR_CENTER,statData);
         statData = visuals.getStdDevFromCenter(statData);
         intent.putExtra(STD_DEV_FR_CENTER,statData);
-        intent.putExtra(TRIAL_NUM,trialNumber); // trial number TODO I DON'T THINK WE NEED THIS
-        isDone = true; // set to true so returning from results we can send the info to Front end
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT); // starting the Result activity
-        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-        Log.e("DIFFXY",""+visuals.getMeanCenterDifferenceFromStart());
+        intent.putExtra(TRIAL_NUM,trialNumber); // trial number
 
-        // END
+        isDone = true; // set to true so returning from results we can send the info to Front end
+
+        startActivityForResult(intent,Info.ACTIVITY_FOR_RESULT); // starting the Result activity
+        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left); // animation
+        Log.e("DIFFXY",""+visuals.getMeanCenterDifferenceFromStart());
     }
 
     // compress the bitmap to 100, so it can be sent via intent
@@ -634,7 +679,7 @@ public class SwayMain extends AppCompatActivity {
     /***********************************************************************************************
      *                              Speech Recognition
      **********************************************************************************************/
-    // sets up the intent that defins the type of Speech Recognition
+    // sets up the intent that defines the type of Speech Recognition
     private Intent getSpeechRecognitionIntent(){
         Log.d(MD,"getSpeechRecognitionIntent");
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -651,7 +696,7 @@ public class SwayMain extends AppCompatActivity {
     }
 
     // Cross references speech recognized with key phrases
-    // returns 1 if the keu phrase is for going back
+    // returns 1 if the key phrase is for going back
     // return 0 if it is to start the test
     private int interpretSpeech(ArrayList<String> speechList){
         Log.d(MD,"interpretSpeech");
@@ -677,9 +722,7 @@ public class SwayMain extends AppCompatActivity {
         }
 
         @Override
-        public void onBufferReceived(byte[] buffer) {
-//            Log.d(MD+LN,"SpeechRecognitionListener - onBufferReceived");
-        }
+        public void onBufferReceived(byte[] buffer) {}
 
         @Override
         public void onEndOfSpeech() {
@@ -690,25 +733,18 @@ public class SwayMain extends AppCompatActivity {
         public void onError(int error) {
             Log.d(MD+LN,"SpeechRecognitionListener - onError   "+ error);
             speechRecognizer.startListening(speechRecogIntent);
-
-            //Log.d(TAG, "error = " + error);
         }
 
         @Override
-        public void onEvent(int eventType, Bundle params) {
-//            Log.d(MD+LN,"SpeechRecognitionListener - onEvent");
-        }
+        public void onEvent(int eventType, Bundle params) {}
 
         @Override
-        public void onPartialResults(Bundle partialResults) {
-//            Log.d(MD+LN,"SpeechRecognitionListener - onPartialResults");
-        }
+        public void onPartialResults(Bundle partialResults) {}
 
         @Override
-        public void onReadyForSpeech(Bundle params) {
-//            Log.d(MD+LN,"SpeechRecognitionListener - onReadyForSpeech");
-        }
+        public void onReadyForSpeech(Bundle params) {}
 
+        // analysis of the speech result
         @Override
         public void onResults(Bundle results) {
             Log.d(MD+LN,"SpeechRecognitionListener - onResult");
@@ -718,19 +754,15 @@ public class SwayMain extends AppCompatActivity {
 
             int result = interpretSpeech(matches);
             Log.e("SPEECH", Arrays.toString(matches.toArray()) + "\n\t\t\tRESULT: "+result);
-            //TODO ADD GOING BACK TO VR
-//            if(result == 1) setResult(RESULT_CANCELED);
             if(result == 0){
                 speechRecognizer.destroy();
-                tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
+                tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, INTERMEDIATE_TTS_SPEECH_ID);
             }
             else restartSpeech();
         }
 
         @Override
-        public void onRmsChanged(float rmsdB) {
-//            Log.d(MD+LN,"SpeechRecognitionListener - onRmsChanged");
-        }
+        public void onRmsChanged(float rmsdB) {}
     }
 
 
@@ -746,8 +778,8 @@ public class SwayMain extends AppCompatActivity {
             // Do what you want here, I used a Toast for demonstration
             if(speechRecognizer != null) speechRecognizer.destroy();
             tts.stop();
-            tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
-            Log.e("TOUCH","2");
+            tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, INTERMEDIATE_TTS_SPEECH_ID);
+            Log.e("TOUCH","INTERMEDIATE_TTS_SPEECH_ID");
 
         }
     };
@@ -809,19 +841,17 @@ public class SwayMain extends AppCompatActivity {
      *                                      Permissions
      **********************************************************************************************/
 
+    // gets Audio and any other future Permissions
     private void getPermission(){
         Log.d(MD,"getPermission");
         if(ContextCompat.checkSelfPermission(SwayMain.this,
                 Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED){
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(SwayMain.this,
                     Manifest.permission.RECORD_AUDIO)) {
 
             } else {
-
                 // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(SwayMain.this,
                         new String[]{Manifest.permission.RECORD_AUDIO},
                         1);
@@ -830,6 +860,14 @@ public class SwayMain extends AppCompatActivity {
 
 
     }
+
+    /***********************************************************************************************
+     *                          EXTRA LISTENERS SINCE THE DEFAULT HAD BUGS
+     *                          NEEDS TESTING ON MORE THAN ONE DEVICES
+     **********************************************************************************************/
+
+    // Replacement Recognition Listener, to fix some of the issues with stock.
+    // I NEED TO TEST ON GOOGLE PIXEL TO SEE IF THE DEFAULT LISTENER WILL WORK OR NOT
 
     public class BugRecognitionListener implements RecognitionListener {
 
@@ -981,11 +1019,9 @@ public class SwayMain extends AppCompatActivity {
 
             int result = interpretSpeech(matches);
             Log.e("SPEECH", Arrays.toString(matches.toArray()) + "\n\t\t\tRESULT: "+result);
-            //TODO ADD GOING BACK TO VR
-//            if(result == 1) setResult(RESULT_CANCELED);
             if(result == 0){
                 speechRecognizer.destroy();
-                tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, "2");
+                tts.speak(getString(R.string.countdown),TextToSpeech.QUEUE_ADD, ttsParams, INTERMEDIATE_TTS_SPEECH_ID);
             }
             else restartSpeech();
         }
@@ -995,34 +1031,4 @@ public class SwayMain extends AppCompatActivity {
         }
     };
 
-
-    private void promptForHeight(){
-        View promptView  = LayoutInflater.from(this).inflate(R.layout.dialog_height_input,null);
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setView(promptView);
-        final EditText editText = (EditText) promptView.findViewById(R.id.dialog_height_edit_text);
-
-
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("Set Height", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SharedPreferences sharedPreferences =
-                                SwayMain.this.getSharedPreferences(SHARED_PREF_ID,0);
-                        sharedPreferences.edit()
-                                .putFloat(
-                                        SHARED_PREf_HEIGHT_ID,
-                                        Float.valueOf(editText.getText().toString()))
-                                .apply();
-                        HEIGHT = Float.valueOf(editText.getText().toString());
-                        Log.d("HEIGHT",HEIGHT+"");
-                    }
-                });
-
-        alertDialogBuilder.create().show();
-
-
-
-    }
 }

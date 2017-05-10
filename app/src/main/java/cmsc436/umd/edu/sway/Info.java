@@ -3,7 +3,7 @@ package cmsc436.umd.edu.sway;
 import edu.umd.cmsc436.sheets.Sheets;
 
 /**
- * Static class that stores all of the info
+ * Static class that stores all of the info needed for later uses
  */
 
 public class Info {

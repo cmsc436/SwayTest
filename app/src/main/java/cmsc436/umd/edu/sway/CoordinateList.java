@@ -2,6 +2,7 @@ package cmsc436.umd.edu.sway;
 
 /**
  * A Tribute to efficient and simple structure for holding data
+ * For Future implementations, to speedup the data analysis algorithms
  */
 
 public class CoordinateList {

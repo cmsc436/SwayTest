@@ -17,12 +17,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Created By Shubham Patel
+ *
+ * This is a service that,
+ * when activated will start to collect the measurements
+ * about the phone's position
+ */
 
 public class MeasurementService extends Service {
-    /*
-        If anyone is reading, IDK if we should also use magnetic fields for anything (one group used it)
-        also Gravimeter vs Accelerometer what is the best?
-     */
 
     // handler thread name used for initializing the Handler Thread
     private final String HANDLER_THREAD_NAME = "HANDLER";//getString(R.string.measurement_service_handler_name);
@@ -58,7 +61,6 @@ public class MeasurementService extends Service {
     // Sensor Objects
     SensorManager sensorManager;
     SensorEventListener sensorEventListener;
-//    Sensor magneticSensor; // might not use instructionsTitle
     Sensor accelSensor;
     Sensor gravitySensor;
 
@@ -98,7 +100,6 @@ public class MeasurementService extends Service {
         // initializing sensor elements
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
 
         sensorEventListener= new SensorEventListener() {
             @Override
@@ -107,9 +108,6 @@ public class MeasurementService extends Service {
                     if(initialReading == null && event.sensor.getType() == SENSOR_TYPE){
                         Log.d("INIT_MEASURE", ""+sumX+ "  " + sumY + "   " + readingCount);
                         initialReading = new DataPoint(
-//                                sumX/readingCount,
-//                                sumY/readingCount,
-//                                System.currentTimeMillis()
                                 event.values[0],
                                 event.values[2],
                                 System.currentTimeMillis()
@@ -126,27 +124,8 @@ public class MeasurementService extends Service {
                                 concurrentDataList.add(currentReading.getDeepCopy());
                             }
                         }
-
-//                        concurrentAccelerationData.add(0, event.values[0]);
-//                    concurrentAccelerationData.add(1,event.values[1]);
-//                        concurrentAccelerationData.add(2, event.values[2]);
                     }
-                    //updating magnetic sensor reading
-//                    else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-//                        concurrentMagneticData.add(0, event.values[0]);
-////                    concurrentMagneticData.add(1,event.values[1]);
-//                        concurrentMagneticData.add(2, event.values[2]);
-//                    }
-
                 }
-//                else{
-//                    synchronized (event.values) {
-//                        sumX += event.values[0];
-//                        sumY += event.values[2];
-//                        readingCount++;
-//                    }
-//                }
-
             }
 
             @Override
@@ -160,11 +139,9 @@ public class MeasurementService extends Service {
         return localBinder;
     }
 
-    // getters for both sensor reading
-//    public Float[] getMagneticReading(){
-//        Float[] toRet = new Float[3];
-//        return concurrentMagneticData.toArray(toRet);
-//    }
+    /**********************************************************************************************
+     *                                  Getters
+     **********************************************************************************************/
 
     public DataPoint getCurrentReading(){
         return currentReading.getDeepCopy();
@@ -189,9 +166,7 @@ public class MeasurementService extends Service {
     }
 
 
-
-
-    // register sensors
+    // register sensors, If the phone does not have Gravity, it will use Acceleration
     private void registerSensor(){
 
         if(gravitySensor != null) {
@@ -232,12 +207,14 @@ public class MeasurementService extends Service {
                 currentReading.getTime());
     }
 
+    // returns the collected readings
     public List<DataPoint> getDataList(){
         if(readingStopped && !startReading) return concurrentDataList;
         Toast.makeText(this,"READING WAS NOT STOPPED",Toast.LENGTH_LONG).show();
         return null;
     }
 
+    // restarting the reading, discards previous readings
     public void restartReading(){
         startReading = false;
         readingStopped = false;
@@ -245,12 +222,17 @@ public class MeasurementService extends Service {
         initialReading = null;
     }
 
-    // binding
+    // for binding the service to calling activity
     public class LocalBinder extends Binder{
         public MeasurementService getService(){
             return MeasurementService.this;
         }
     }
+
+    /***********************************************************************************************
+     *                                      This is a Wrapper Class
+     *                                      That Holds 3 Pieces of Data
+     **********************************************************************************************/
 
     public class DataPoint {
         private float x;

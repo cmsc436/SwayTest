@@ -17,19 +17,24 @@ import android.widget.TextView;
 
 import edu.umd.cmsc436.frontendhelper.TrialMode;
 
+/**
+ * Shows Result For Analyzed Data
+ * This is where the raw data will be sent from
+ */
 
 public class DisplayResult extends AppCompatActivity {
-//    ImageView path;
-//    ImageView heatmap;
-    ImageView imageView;
-    Button button;
-    Bitmap bmp_heat_map;
-    Bitmap bmp_path;
+
+    ImageView imageView; // to display BitMaps
+    Button button; // Done Button
+    Bitmap bmp_heat_map; //heat map
+    Bitmap bmp_path; // bitmap with path drawn
+
     int trial;
     float final_score;
-    float[] rawData;
-    TextView viewScore;
-    RadioGroup radioGroup;
+    float[] rawData; //raw data
+
+    TextView viewScore; // Final Score of trial
+    RadioGroup radioGroup; // for choosing what to display
 
     // Object responsible for sending info to the sheets
     SheetManager sheetManager;
@@ -98,6 +103,8 @@ public class DisplayResult extends AppCompatActivity {
 
     }
 
+    // here the result will be set, and sent to Front end
+    // it will piggy back to from all previous activities
     @Override
     public void onBackPressed() {
         Intent i = new Intent();
@@ -107,6 +114,7 @@ public class DisplayResult extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
     }
 
+    // initializes the Sheet Manager
     @Override
     protected void onStart() {
         sheetManager.sendData(
@@ -123,6 +131,8 @@ public class DisplayResult extends AppCompatActivity {
         ((RadioButton)findViewById(R.id.sway_result_heat_map)).setChecked(true);
 
     }
+
+    //Switch the views
 
     private void showScore(){
         imageView.setVisibility(View.INVISIBLE);
@@ -147,7 +157,6 @@ public class DisplayResult extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         sheetManager.onRequestPermissionsResult(requestCode,permissions,grantResults);
-//        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
     @Override

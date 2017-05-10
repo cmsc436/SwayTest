@@ -13,7 +13,8 @@ import java.util.Calendar;
 import edu.umd.cmsc436.sheets.Sheets;
 
 /**
- *
+ * Created by Shubham Patel
+ * Abstraction of Sheet436 library
  */
 
 public class SheetManager implements Sheets.Host {
@@ -30,16 +31,7 @@ public class SheetManager implements Sheets.Host {
                 Info.PRIVATE_SPREADSHEET_ID);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        sheets.onActivityResult(requestCode,resultCode,data);
-    }
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        sheets.onRequestPermissionsResult(requestCode,permissions,grantResults);
-    }
-
-
+    // Sends the Trial data, and the two bitmaps via Sheets436 Library
     public void sendData(float[] rawData, Bitmap heatmap, Bitmap pathmap,Sheets.TestType testType){
         sheets.writeTrials(testType,Info.USER_ID,rawData);
         String title = Info.getPicturePrefix(false)+testType.toId() +"_" +(new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
@@ -49,7 +41,15 @@ public class SheetManager implements Sheets.Host {
         sheets.uploadToDrive(Info.FOLDER_ID,title,pathmap);
     }
 
-    
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        sheets.onActivityResult(requestCode,resultCode,data);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        sheets.onRequestPermissionsResult(requestCode,permissions,grantResults);
+    }
+
     @Override
     public int getRequestCode(Sheets.Action action) {
         return Info.getActionCode(action);
@@ -58,9 +58,7 @@ public class SheetManager implements Sheets.Host {
     @Override
     public void notifyFinished(Exception e) {
         if(e!=null){
-            Toast.makeText(activity,e.toString(),Toast.LENGTH_LONG).show();
             Log.e("SHEETS-API",e.toString());
         }
-
     }
 }

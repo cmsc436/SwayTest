@@ -22,6 +22,11 @@ import java.util.List;
 import edu.umd.cmsc436.frontendhelper.TrialMode;
 import edu.umd.cmsc436.sheets.Sheets;
 
+/**
+ * Instructions activity, adds fragments for particular test
+ * In practice or help mode add all of the instructions
+ *
+ */
 public class FragmentPagerSupport extends AppCompatActivity {
     static final String ACTION_HELP = "edu.umd.cmsc436.balance.action.HELP";
     static final String ACTION_PRACTICE = "edu.umd.cmsc436.balance.action.PRACTICE";
@@ -40,6 +45,7 @@ public class FragmentPagerSupport extends AppCompatActivity {
         mPager = (ViewPager)findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
 
+        // instructions logic based on the MODE
         Intent intent = getIntent();
         String action = intent.getAction();
         switch(action) {
@@ -71,6 +77,7 @@ public class FragmentPagerSupport extends AppCompatActivity {
         }
     }
 
+    // similar to Sway MAin, piggybacks to to Front End
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e("ACTIVITY_RESULT","AC CALLED: "+data.getFloatExtra(TrialMode.KEY_SCORE,-1));
@@ -107,6 +114,7 @@ public class FragmentPagerSupport extends AppCompatActivity {
         }
     }
 
+    // single instructions Fragment
     public static class PageFragment extends Fragment {
         public static final String ARG_ID = "ARG_ID";
         private int mId;
@@ -140,6 +148,7 @@ public class FragmentPagerSupport extends AppCompatActivity {
         }
     }
 
+    // Fragment for all instructions
     public static class LastFragment extends Fragment {
         public static final String ARG_ID = "ARG_ID";
         private int mId;
@@ -173,11 +182,6 @@ public class FragmentPagerSupport extends AppCompatActivity {
             startButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    Intent currIntent = getActivity().getIntent();
-//                    Intent intent = new Intent(getActivity(), SwayMain.class);
-//                    intent.putExtras(currIntent);
-//                    intent.setAction(currIntent.getAction());
-//                    startActivity(intent);
                     getActivity().finish();
                 }
             });
