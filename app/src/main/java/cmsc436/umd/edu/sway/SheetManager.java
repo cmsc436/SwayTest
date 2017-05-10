@@ -45,7 +45,7 @@ public class SheetManager implements Sheets.Host {
         String title = Info.getPicturePrefix(false) +(new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
         sheets.uploadToDrive(Info.FOLDER_ID,title,heatmap);
 
-        title = Info.getPicturePrefix(true) + testType.toId() + (new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
+        title = Info.getPicturePrefix(true) + testType.toId() +"_"+ (new SimpleDateFormat("yyyddMM_HHmmss")).format(Calendar.getInstance().getTime());
         sheets.uploadToDrive(Info.FOLDER_ID,title,pathmap);
     }
 
